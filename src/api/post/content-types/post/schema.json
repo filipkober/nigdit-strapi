@@ -67,8 +67,10 @@
       "target": "api::subnigdit.subnigdit",
       "inversedBy": "posts"
     },
-    "reports": {
-      "type": "integer"
+    "nsfw": {
+      "type": "boolean",
+      "default": false,
+      "required": false
     }
   }
 }
