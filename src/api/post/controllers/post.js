@@ -19,7 +19,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 await strapi.plugins.upload.services.upload.remove(file)
                }
 
-            await strapi.entityService.update("api::post.post", ctx.params.id, {
+            const newPost = await strapi.entityService.update("api::post.post", ctx.params.id, {
                 data:{
                     Title: "[removed]",
                     Description: "[removed]",
@@ -29,7 +29,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 }
             })
 
-            ctx.send({message: "Post removed succefully"}, 200)
+            ctx.send(newPost, 200)
         }
     }
 });
