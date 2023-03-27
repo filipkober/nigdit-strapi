@@ -29,7 +29,7 @@
       "inversedBy": "replies"
     },
     "votes": {
-      "type": "integer"
+      "type": "biginteger"
     },
     "reports": {
       "type": "integer"
