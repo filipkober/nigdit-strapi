@@ -10,5 +10,5 @@ module.exports = ({ env }) => ({
           defaultReplyTo: 'noreply@nigdit.men',
         },
       },
-    }
+    },
   });
