@@ -98,6 +98,21 @@
       "relation": "oneToMany",
       "target": "api::reply.reply",
       "mappedBy": "owner"
+    },
+    "votes": {
+      "type": "json",
+      "default": {
+        "upvotes": {
+          "posts": [],
+          "comments": [],
+          "replies": []
+        },
+        "downvotes": {
+          "posts": [],
+          "comments": [],
+          "replies": []
+        }
+      }
     }
   }
 }
