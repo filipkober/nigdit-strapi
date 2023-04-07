@@ -1,8 +1,8 @@
 module.exports = {
     routes: [
         {
-            method: 'GET',              //GET | POST | DELETE | PUT
-            path: '/pop',           //http://localhost:1338/api/popular
+            method: 'GET',          //GET | POST | DELETE | PUT
+            path: '/posts/pop',           //http://localhost:1338/api/popular
             handler: 'post.getPop', //kontroler.metoda
             config: {
                 auth: false
@@ -10,7 +10,7 @@ module.exports = {
         },
         {
             method: 'GET',
-            path: '/top',
+            path: '/posts/top',
             handler: 'post.getTop',
             config: {
                 auth: false
@@ -18,7 +18,7 @@ module.exports = {
         },
         {
             method: 'GET',
-            path: '/new',
+            path: '/posts/new',
             handler: 'post.getNew',
             config: {
                 auth: false
@@ -26,7 +26,7 @@ module.exports = {
         },
         {
             method: 'GET',
-            path: '/hot',
+            path: '/posts/hot',
             handler: 'post.getHot',
             config: {
                 auth: false
