@@ -148,7 +148,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                     {
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: parseInt(post.Votes) //tu powinna być suma dv + uv
+                        popularity: parseInt(post.Votes)
                     }  
                 )
                 })
@@ -193,33 +193,44 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 var i = -1
                 const samples = posts.map((post)=>{      
                     i+=1  
+                    var dataPosta = new Date(post.createdAt)
+                    var today = new Date()
+                    var differenceInMs = today.getTime() - dataPosta.getTime();
+                    var differenceInDays = differenceInMs / (1000 * 60 * 60 * 24);
+                    if(differenceInDays < 1)
+                    {
+                        differenceInDays = 4202137;
+                    }
+                    else
+                    {
+                        differenceInDays = 0;
+                    }
                     return(    
                         {
                             idPostu: post.id,
                             pozycja: i,
-                            popularity: post.comments.length * 3 + parseInt(post.Votes) //tu powinna być suma dv + uv
+                            popularity: post.comments.length * 3 + parseInt(post.Votes) + differenceInDays
                         }  
                     )
                 })
                 samples.sort((a, b) => a.popularity - b.popularity);
                 samples.reverse()
                 const sorted = samples.map((sample)=>{
-                    var dataPosta = new Date(posts[sample.pozycja].createdAt)
-                    var today = new Date()
-                    var differenceInMs = today.getTime() - dataPosta.getTime();
-                    var differenceInDays = differenceInMs / (1000 * 60 * 60 * 24);
-                    if(differenceInDays < 1)
-                    {
+                    // var dataPosta = new Date(posts[sample.pozycja].createdAt)
+                    // var today = new Date()
+                    // var differenceInMs = today.getTime() - dataPosta.getTime();
+                    // var differenceInDays = differenceInMs / (1000 * 60 * 60 * 24);
+                    // if(differenceInDays < 1)
+                    // {
                         return(    
                             posts[sample.pozycja]
                         )
-                    }
-    
+                    // }
                 })
-                const filtered = sorted.filter((x)=>{
-                    return !!x
-                })
-                ctx.send(filtered, 200)
+                // const filtered = sorted.filter((x)=>{
+                //     return !!x
+                // })
+                ctx.send(sorted, 200)
             }
             catch(err)
             {
