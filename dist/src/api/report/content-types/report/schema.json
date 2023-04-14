@@ -1,0 +1,62 @@
+{
+    "kind": "collectionType",
+    "collectionName": "reports",
+    "info": {
+        "singularName": "report",
+        "pluralName": "reports",
+        "displayName": "Report",
+        "description": ""
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "contentId": {
+            "type": "integer",
+            "required": true
+        },
+        "contents": {
+            "type": "text",
+            "required": true
+        },
+        "media": {
+            "type": "media",
+            "multiple": false,
+            "required": false,
+            "allowedTypes": [
+                "images",
+                "files",
+                "videos",
+                "audios"
+            ]
+        },
+        "reporter": {
+            "type": "relation",
+            "relation": "oneToOne",
+            "target": "plugin::users-permissions.user"
+        },
+        "contentOwner": {
+            "type": "relation",
+            "relation": "oneToOne",
+            "target": "plugin::users-permissions.user"
+        },
+        "type": {
+            "type": "enumeration",
+            "enum": [
+                "post",
+                "reply",
+                "comment"
+            ],
+            "required": true
+        },
+        "toSubnigdit": {
+            "type": "boolean",
+            "default": true,
+            "required": true
+        },
+        "reportMessage": {
+            "type": "text"
+        }
+    }
+}
