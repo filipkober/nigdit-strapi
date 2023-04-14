@@ -14,7 +14,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 populate: "*"//<= wszystko lub nazwy relacji w arrayu
               })
 
-               const mediaId = post.Media?.id
+               const mediaId = post.media?.id
                if(mediaId)
                {
                 const file = await strapi.plugins.upload.services.upload.findOne(mediaId)
@@ -23,11 +23,11 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
 
             const newPost = await strapi.entityService.update("api::post.post", ctx.params.id, {
                 data:{
-                    Title: "[removed]",
-                    Description: "[removed]",
-                    Type: "Text",
+                    title: "[removed]",
+                    description: "[removed]",
+                    type: "Text",
                     // ! TUDU:fiks diz szit
-                    Reports: -1
+                    reports: -1
                 }
             })
 
@@ -39,7 +39,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
             const clonedVotes = JSON.parse(JSON.stringify(user.votes))
             const post = await strapi.entityService.findOne("api::post.post", id)
             if(!post) return ctx.send("Post not found", 404)
-            let postVotes = post.Votes
+            let postVotes = post.votes
             if(clonedVotes.upvotes.posts.includes(id)){
                 clonedVotes.upvotes.posts = clonedVotes.upvotes.posts.filter((postId)=>postId!=id)
                 postVotes--
@@ -54,7 +54,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
 
             await strapi.entityService.update("api::post.post", id, {
                 data:{
-                    Votes: postVotes
+                    votes: postVotes
                 }
             })
 
@@ -71,7 +71,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
             const clonedVotes = JSON.parse(JSON.stringify(user.votes))
             const post = await strapi.entityService.findOne("api::post.post", id)
             if(!post) return ctx.send("Post not found", 404)
-            let postVotes = post.Votes
+            let postVotes = post.votes
             if(clonedVotes.downvotes.posts.includes(id)){
                 clonedVotes.downvotes.posts = clonedVotes.downvotes.posts.filter((postId)=>postId!=id)
                 postVotes++
@@ -86,7 +86,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
 
             await strapi.entityService.update("api::post.post", id, {
                 data:{
-                    Votes: postVotes
+                    votes: postVotes
                 }
             })
 
@@ -115,7 +115,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                     {
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: post.comments.length * 3 + parseInt(post.Votes) //tu powinna być suma dv + uv
+                        popularity: post.comments.length * 3 + parseInt(post.votes) //tu powinna być suma dv + uv
                     }  
                 )
                 })
@@ -148,7 +148,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                     {
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: parseInt(post.Votes)
+                        popularity: parseInt(post.votes)
                     }  
                 )
                 })
@@ -209,7 +209,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         {
                             idPostu: post.id,
                             pozycja: i,
-                            popularity: post.comments.length * 3 + parseInt(post.Votes) + differenceInDays
+                            popularity: post.comments.length * 3 + parseInt(post.votes) + differenceInDays
                         }  
                     )
                 })
