@@ -1,9 +1,6 @@
 'use strict';
-
 /**
- * report service
+ * subnigdit service
  */
-
 const { createCoreService } = require('@strapi/strapi').factories;
-
-module.exports = createCoreService('api::report.report');
+module.exports = createCoreService('api::subnigdit.subnigdit');

@@ -36,7 +36,7 @@
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user"
     },
-    "contentOnwer": {
+    "contentOwner": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user"
