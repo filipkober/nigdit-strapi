@@ -30,9 +30,6 @@
     },
     "votes": {
       "type": "biginteger"
-    },
-    "reports": {
-      "type": "integer"
     }
   }
 }

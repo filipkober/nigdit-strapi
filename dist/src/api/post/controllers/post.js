@@ -10,18 +10,18 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
             const post = await strapi.entityService.findOne("api::post.post", ctx.params.id, {
                 populate: "*" //<= wszystko lub nazwy relacji w arrayu
             });
-            const mediaId = (_a = post.Media) === null || _a === void 0 ? void 0 : _a.id;
+            const mediaId = (_a = post.media) === null || _a === void 0 ? void 0 : _a.id;
             if (mediaId) {
                 const file = await strapi.plugins.upload.services.upload.findOne(mediaId);
                 await strapi.plugins.upload.services.upload.remove(file);
             }
             const newPost = await strapi.entityService.update("api::post.post", ctx.params.id, {
                 data: {
-                    Title: "[removed]",
-                    Description: "[removed]",
-                    Type: "Text",
+                    title: "[removed]",
+                    description: "[removed]",
+                    type: "Text",
                     // ! TUDU:fiks diz szit
-                    Reports: -1
+                    reports: -1
                 }
             });
             ctx.send(newPost, 200);
@@ -33,7 +33,7 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
             const post = await strapi.entityService.findOne("api::post.post", id);
             if (!post)
                 return ctx.send("Post not found", 404);
-            let postVotes = post.Votes;
+            let postVotes = post.votes;
             if (clonedVotes.upvotes.posts.includes(id)) {
                 clonedVotes.upvotes.posts = clonedVotes.upvotes.posts.filter((postId) => postId != id);
                 postVotes--;
@@ -49,7 +49,7 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
             }
             await strapi.entityService.update("api::post.post", id, {
                 data: {
-                    Votes: postVotes
+                    votes: postVotes
                 }
             });
             const updatedUser = await strapi.entityService.update("plugin::users-permissions.user", user.id, {
@@ -66,7 +66,7 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
             const post = await strapi.entityService.findOne("api::post.post", id);
             if (!post)
                 return ctx.send("Post not found", 404);
-            let postVotes = post.Votes;
+            let postVotes = post.votes;
             if (clonedVotes.downvotes.posts.includes(id)) {
                 clonedVotes.downvotes.posts = clonedVotes.downvotes.posts.filter((postId) => postId != id);
                 postVotes++;
@@ -82,7 +82,7 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
             }
             await strapi.entityService.update("api::post.post", id, {
                 data: {
-                    Votes: postVotes
+                    votes: postVotes
                 }
             });
             const updatedUser = await strapi.entityService.update("plugin::users-permissions.user", user.id, {
@@ -104,7 +104,7 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
                     return ({
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: post.comments.length * 3 + parseInt(post.Votes) //tu powinna być suma dv + uv
+                        popularity: post.comments.length * 3 + parseInt(post.votes) //tu powinna być suma dv + uv
                     });
                 });
                 samples.sort((a, b) => a.popularity - b.popularity);
@@ -129,7 +129,7 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
                     return ({
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: parseInt(post.Votes)
+                        popularity: parseInt(post.votes)
                     });
                 });
                 samples.sort((a, b) => a.popularity - b.popularity);
@@ -177,7 +177,7 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
                     return ({
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: post.comments.length * 3 + parseInt(post.Votes) + differenceInDays
+                        popularity: post.comments.length * 3 + parseInt(post.votes) + differenceInDays
                     });
                 });
                 samples.sort((a, b) => a.popularity - b.popularity);

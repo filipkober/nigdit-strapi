@@ -36,9 +36,6 @@
       "relation": "oneToMany",
       "target": "api::reply.reply",
       "mappedBy": "comment"
-    },
-    "reports": {
-      "type": "integer"
     }
   }
 }
