@@ -31,6 +31,26 @@ module.exports = {
             config: {
                 auth: false
             }
+        },
+        {
+            method: 'POST',
+            path: '/posts/popSub',
+            handler: 'post.getPopSub',
+        },
+        {
+            method: 'POST',
+            path: '/posts/topSub',
+            handler: 'post.getTopSub',
+        },
+        {
+            method: 'POST',
+            path: '/posts/newSub',
+            handler: 'post.getNewSub',
+        },
+        {
+            method: 'POST',
+            path: '/posts/hotSub',
+            handler: 'post.getHotSub',
         }
     ]
 };
