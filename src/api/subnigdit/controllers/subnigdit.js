@@ -33,7 +33,7 @@ module.exports = createCoreController('api::subnigdit.subnigdit', ({strapi})=>{
                 data: {
                     subscribers: subs
                 }
-            }) 
+            })
             ctx.send(subs, 200)
         },
     }});
