@@ -118,8 +118,9 @@
       "type": "json",
       "default": []
     },
-    "displayName": {
-      "type": "string"
+    "admin": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

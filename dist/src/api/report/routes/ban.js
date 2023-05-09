@@ -1,9 +1,17 @@
 module.exports = {
     routes: [
         {
-            method: 'POST',
+            method: "POST",
             path: "/reports/:id/ban/subnigdit",
-            handler: 'report.banMemberFromSubnigdit',
-        }
-    ]
+            handler: "report.banMemberFromSubnigdit",
+        },
+        {
+            method: "POST",
+            path: "/reports/:id/ban/user",
+            handler: "report.banMemberFromNigdit",
+            config: {
+                policies: ["global::isNigditAdmin"],
+            },
+        },
+    ],
 };

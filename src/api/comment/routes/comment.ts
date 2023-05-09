@@ -1,16 +1,13 @@
 'use strict';
 
 /**
- * post router
+ * comment router
  */
 
 const { createCoreRouter } = require('@strapi/strapi').factories;
 
-module.exports = createCoreRouter('api::post.post', {
+module.exports = createCoreRouter('api::comment.comment', {
     config: {
-        delete: {
-            policies: ['global::is-post-creator']
-        },
         create: {
             policies: ['global::not-banned']
         }
