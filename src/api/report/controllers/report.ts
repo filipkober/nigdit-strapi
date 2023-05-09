@@ -187,24 +187,53 @@ module.exports = createCoreController(
             populate: "*",
           }
         );
-
+        if (!reportedUser.bans.includes(subnidgitId.id)){
         await strapi.entityService.update(
           "plugin::users-permissions.user",
           report.contentOwner.id,
           {
             data: {
-              bans: [...reportedUser.bans, subnidgitId],
+              bans: [...reportedUser.bans, subnidgitId.id],
             },
           }
         );
-
+        }
         await strapi
           .service("api::report.report")
           .removeDuplicateReports(report);
         ctx.send("User banned from subnigdit and their content is deleted", 200);
       },
       async banMemberFromNigdit(ctx) {
-        
+        const id = ctx.params.id;
+        const report = await strapi.entityService.findOne(
+          "api::report.report",
+          id,
+          {
+            populate: "*",
+          }
+        );
+        if (!report) return ctx.send("Report not found", 404);
+        if (report.toSubnigdit) return ctx.send("Invalid report", 400);
+        await strapi.service("api::administrate.administrate").permabanUser(report.contentOwner.id);
+        await strapi
+          .service("api::report.report")
+          .removeDuplicateReports(report);
+        ctx.send("User banned from nigdit and their content is deleted", 200);
+      },
+      async removeReports(ctx) {
+        const id = ctx.params.id;
+        const report = await strapi.entityService.findOne(
+          "api::report.report",
+          id,
+          {
+            populate: "*",
+          }
+        );
+        if (!report) return ctx.send("Report not found", 404);
+        await strapi
+          .service("api::report.report")
+          .removeDuplicateReports(report);
+        ctx.send("Reports removed", 200);
       }
     };
   }
