@@ -1,7 +1,7 @@
 module.exports = {
     routes: [
         {
-            method: 'POST',          //GET | POST | DELETE | PUT
+            method: 'GET',          //GET | POST | DELETE | PUT
             path: '/posts/pop',           //http://localhost:1338/api/popular
             handler: 'post.getPop', //kontroler.metoda
             // config: {
@@ -9,37 +9,37 @@ module.exports = {
             // }
         },
         {
-            method: 'POST',
+            method: 'GET',
             path: '/posts/top',
             handler: 'post.getTop',
         },
         {
-            method: 'POST',
+            method: 'GET',
             path: '/posts/new',
             handler: 'post.getNew',
         },
         {
-            method: 'POST',
+            method: 'GET',
             path: '/posts/hot',
             handler: 'post.getHot',
         },
         {
-            method: 'POST',
+            method: 'GET',
             path: '/posts/popSub',
             handler: 'post.getPopSub',
         },
         {
-            method: 'POST',
+            method: 'GET',
             path: '/posts/topSub',
             handler: 'post.getTopSub',
         },
         {
-            method: 'POST',
+            method: 'GET',
             path: '/posts/newSub',
             handler: 'post.getNewSub',
         },
         {
-            method: 'POST',
+            method: 'GET',
             path: '/posts/hotSub',
             handler: 'post.getHotSub',
         }
