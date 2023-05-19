@@ -13,5 +13,13 @@ module.exports = {
                 policies: ["global::isNigditAdmin"],
             },
         },
+        {
+            method: "GET",
+            path: "/reports/tonigdit",
+            handler: "report.findToNigdit",
+            config: {
+                policies: ["global::isNigditAdmin"],
+            },
+        }
     ],
 };

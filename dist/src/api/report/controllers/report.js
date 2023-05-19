@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 ("use strict");
+const { sanitize } = require('@strapi/utils');
 /**
  * report controller
  */
@@ -180,6 +181,50 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                 .service("api::report.report")
                 .removeDuplicateReports(report);
             ctx.send("Reports removed", 200);
+        },
+        async find(ctx) {
+            const { subnigditId, page } = ctx.request.query;
+            const limit = 10;
+            if (!subnigditId)
+                return ctx.send("Subnigdit id not provided", 400);
+            let startPage = 0;
+            if (page)
+                startPage = page * limit;
+            let reports = await strapi.entityService.findMany("api::report.report", {
+                where: {
+                    subnigdit: subnigditId,
+                },
+                populate: "*",
+                limit: limit,
+                start: startPage,
+            });
+            reports = reports.map(report => {
+                delete report.updatedBy;
+                delete report.createdBy;
+                return report;
+            });
+            return await sanitize.contentAPI.output(reports);
+        },
+        async findToNigdit(ctx) {
+            const { page } = ctx.request.query;
+            const limit = 10;
+            let startPage = 0;
+            if (page)
+                startPage = page * limit;
+            let reports = await strapi.entityService.findMany("api::report.report", {
+                where: {
+                    toSubnigdit: false,
+                },
+                populate: "*",
+                limit: limit,
+                start: startPage,
+            });
+            reports = reports.map(report => {
+                delete report.updatedBy;
+                delete report.createdBy;
+                return report;
+            });
+            return await sanitize.contentAPI.output(reports);
         }
     };
 });
