@@ -105,8 +105,8 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
             try
             {
                 const posts = await strapi.entityService.findMany("api::post.post", {
-                    populate: "*"
-                  })
+                    populate: "*",                    
+                })
                 
                 var i = -1
                 const samples = posts.map((post)=>{      
@@ -122,11 +122,17 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 samples.sort((a, b) => a.popularity - b.popularity);
                 samples.reverse()
                 const sorted = samples.map((sample)=>{
-                    return(    
-                        posts[sample.pozycja]
+                    return(  
+                        posts[sample.pozycja]  
                     )
                     })
-                ctx.send(sorted, 200)
+                const result = {
+                    data: sorted.map(({ id, ...attributes }) => ({
+                        id,
+                        attributes,
+                    })),
+                };
+                ctx.send(result, 200)
             }
             catch(err)
             {
@@ -159,7 +165,13 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]
                     )
                     })
-                ctx.send(sorted, 200)
+                const result = {
+                    data: sorted.map(({ id, ...attributes }) => ({
+                        id,
+                        attributes,
+                    })),
+                };
+                ctx.send(result, 200)
             }
             catch(err)
             {
@@ -175,7 +187,13 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 })
                 posts.sort((a, b) => a.createdAt - b.createdAt);
                 posts.reverse()
-                ctx.send(posts, 200)
+                const result = {
+                    data: posts.map(({ id, ...attributes }) => ({
+                        id,
+                        attributes,
+                    })),
+                };
+                ctx.send(result, 200)
             }
             catch(err)
             {
@@ -220,7 +238,13 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]
                     )
                 })
-                ctx.send(sorted, 200)
+                const result = {
+                    data: sorted.map(({ id, ...attributes }) => ({
+                        id,
+                        attributes,
+                    })),
+                };
+                ctx.send(result, 200)
             }
             catch(err)
             {
@@ -257,11 +281,19 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 samples.sort((a, b) => a.popularity - b.popularity);
                 samples.reverse()
                 const sorted = samples.map((sample)=>{
-                    return(    
+                    return(   
+                        {"data": [
                         posts[sample.pozycja]
+                        ] }
                     )
                     })
-                ctx.send(sorted, 200)
+                const result = {
+                    data: sorted.map(({ id, ...attributes }) => ({
+                        id,
+                        attributes,
+                    })),
+                };
+                ctx.send(result, 200)
             }
             catch(err)
             {
@@ -295,7 +327,13 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]
                     )
                     })
-                ctx.send(sorted, 200)
+                const result = {
+                    data: sorted.map(({ id, ...attributes }) => ({
+                        id,
+                        attributes,
+                    })),
+                };
+                ctx.send(result, 200)
             }
             catch(err)
             {
@@ -312,7 +350,13 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 const posts = await strapi.entityService.findMany("api::post.post", {filters: { subnigdit: userSubnigditsIds }, populate: "*"})
                 posts.sort((a, b) => a.createdAt - b.createdAt);
                 posts.reverse()
-                ctx.send(posts, 200)
+                const result = {
+                    data: posts.map(({ id, ...attributes }) => ({
+                        id,
+                        attributes,
+                    })),
+                };
+                ctx.send(result, 200)
             }
             catch(err)
             {
@@ -358,7 +402,13 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]
                     )
                 })
-                ctx.send(sorted, 200)
+                const result = {
+                    data: sorted.map(({ id, ...attributes }) => ({
+                        id,
+                        attributes,
+                    })),
+                };
+                ctx.send(result, 200)
             }
             catch(err)
             {
