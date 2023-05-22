@@ -126,13 +126,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]  
                     )
                     })
-                const result = {
-                    data: sorted.map(({ id, ...attributes }) => ({
-                        id,
-                        attributes,
-                    })),
-                };
-                ctx.send(result, 200)
+                ctx.send(sorted, 200)
             }
             catch(err)
             {
@@ -165,13 +159,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]
                     )
                     })
-                const result = {
-                    data: sorted.map(({ id, ...attributes }) => ({
-                        id,
-                        attributes,
-                    })),
-                };
-                ctx.send(result, 200)
+                ctx.send(sorted, 200)
             }
             catch(err)
             {
@@ -187,13 +175,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 })
                 posts.sort((a, b) => a.createdAt - b.createdAt);
                 posts.reverse()
-                const result = {
-                    data: posts.map(({ id, ...attributes }) => ({
-                        id,
-                        attributes,
-                    })),
-                };
-                ctx.send(result, 200)
+                ctx.send(posts, 200)
             }
             catch(err)
             {
@@ -238,13 +220,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]
                     )
                 })
-                const result = {
-                    data: sorted.map(({ id, ...attributes }) => ({
-                        id,
-                        attributes,
-                    })),
-                };
-                ctx.send(result, 200)
+                ctx.send(sorted, 200)
             }
             catch(err)
             {
@@ -287,13 +263,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         ] }
                     )
                     })
-                const result = {
-                    data: sorted.map(({ id, ...attributes }) => ({
-                        id,
-                        attributes,
-                    })),
-                };
-                ctx.send(result, 200)
+                ctx.send(sorted, 200)
             }
             catch(err)
             {
@@ -327,13 +297,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]
                     )
                     })
-                const result = {
-                    data: sorted.map(({ id, ...attributes }) => ({
-                        id,
-                        attributes,
-                    })),
-                };
-                ctx.send(result, 200)
+                ctx.send(sorted, 200)
             }
             catch(err)
             {
@@ -350,13 +314,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 const posts = await strapi.entityService.findMany("api::post.post", {filters: { subnigdit: userSubnigditsIds }, populate: "*"})
                 posts.sort((a, b) => a.createdAt - b.createdAt);
                 posts.reverse()
-                const result = {
-                    data: posts.map(({ id, ...attributes }) => ({
-                        id,
-                        attributes,
-                    })),
-                };
-                ctx.send(result, 200)
+                ctx.send(posts, 200)
             }
             catch(err)
             {
@@ -402,13 +360,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]
                     )
                 })
-                const result = {
-                    data: sorted.map(({ id, ...attributes }) => ({
-                        id,
-                        attributes,
-                    })),
-                };
-                ctx.send(result, 200)
+                ctx.send(sorted, 200)
             }
             catch(err)
             {
