@@ -1,0 +1,87 @@
+{
+    "kind": "collectionType",
+    "collectionName": "subnigdits",
+    "info": {
+        "singularName": "subnigdit",
+        "pluralName": "subnigdits",
+        "displayName": "Subnigdit",
+        "description": ""
+    },
+    "options": {
+        "draftAndPublish": false
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "subscribers": {
+            "type": "relation",
+            "relation": "manyToMany",
+            "target": "plugin::users-permissions.user",
+            "inversedBy": "subnigdits"
+        },
+        "owner": {
+            "type": "relation",
+            "relation": "oneToOne",
+            "target": "plugin::users-permissions.user",
+            "inversedBy": "owned_subnigdit"
+        },
+        "name": {
+            "type": "string",
+            "required": true,
+            "maxLength": 25,
+            "unique": true,
+            "minLength": 1,
+            "regex": "^(?![_-])(?!-*[_-]{2})[a-zA-Z0-9-_]+(?<![_-])$"
+        },
+        "description": {
+            "type": "richtext"
+        },
+        "rules": {
+            "displayName": "rules",
+            "type": "component",
+            "repeatable": true,
+            "component": "rules.rules"
+        },
+        "icon": {
+            "type": "media",
+            "multiple": false,
+            "required": false,
+            "allowedTypes": [
+                "images"
+            ]
+        },
+        "banner": {
+            "type": "media",
+            "multiple": false,
+            "required": false,
+            "allowedTypes": [
+                "images"
+            ]
+        },
+        "moderators": {
+            "type": "relation",
+            "relation": "manyToMany",
+            "target": "plugin::users-permissions.user",
+            "inversedBy": "moderates"
+        },
+        "posts": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::post.post",
+            "mappedBy": "subnigdit"
+        },
+        "name_uid": {
+            "type": "uid",
+            "targetField": "name",
+            "required": true
+        },
+        "reports": {
+            "type": "integer"
+        },
+        "contentReports": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::report.report",
+            "mappedBy": "subnigdit"
+        }
+    }
+}

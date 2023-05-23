@@ -1,0 +1,72 @@
+{
+    "kind": "collectionType",
+    "collectionName": "posts",
+    "info": {
+        "singularName": "post",
+        "pluralName": "posts",
+        "displayName": "Post",
+        "description": ""
+    },
+    "options": {
+        "draftAndPublish": false
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "title": {
+            "type": "string",
+            "required": true,
+            "maxLength": 120,
+            "minLength": 3
+        },
+        "description": {
+            "type": "text",
+            "maxLength": 10000
+        },
+        "media": {
+            "type": "media",
+            "multiple": false,
+            "required": false,
+            "allowedTypes": [
+                "images",
+                "videos"
+            ]
+        },
+        "type": {
+            "type": "enumeration",
+            "enum": [
+                "Image",
+                "Gif",
+                "Video",
+                "Text"
+            ],
+            "required": true
+        },
+        "votes": {
+            "type": "biginteger",
+            "default": "0"
+        },
+        "owner": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "plugin::users-permissions.user",
+            "inversedBy": "posts"
+        },
+        "comments": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::comment.comment",
+            "mappedBy": "post"
+        },
+        "subnigdit": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::subnigdit.subnigdit",
+            "inversedBy": "posts"
+        },
+        "nsfw": {
+            "type": "boolean",
+            "default": false,
+            "required": false
+        }
+    }
+}
