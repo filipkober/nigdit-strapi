@@ -8,8 +8,11 @@ import { Strapi } from "@strapi/strapi";
 const { createCoreService } = require('@strapi/strapi').factories;
 
 module.exports = createCoreService('api::post.post', ({ strapi } : { strapi: Strapi }) => ({
-    async removePostValues(post){
-        const {id} = post;
+    async removePostValues(post, postId = undefined){
+        if(post === undefined && postId === undefined) throw new Error("Missing post or postId");
+        let id;
+        if(postId) id = postId;
+        else id = post.id;
 
         const mediaId = post.Media?.id
         if(mediaId)

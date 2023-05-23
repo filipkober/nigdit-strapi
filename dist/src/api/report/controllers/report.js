@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 ("use strict");
-const { sanitize } = require('@strapi/utils');
+const { sanitize } = require("@strapi/utils");
 /**
  * report controller
  */
@@ -164,7 +164,9 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                 return ctx.send("Report not found", 404);
             if (report.toSubnigdit)
                 return ctx.send("Invalid report", 400);
-            await strapi.service("api::administrate.administrate").permabanUser(report.contentOwner.id);
+            await strapi
+                .service("api::administrate.administrate")
+                .permabanUser(report.contentOwner.id);
             await strapi
                 .service("api::report.report")
                 .removeDuplicateReports(report);
@@ -183,7 +185,7 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
             ctx.send("Reports removed", 200);
         },
         async find(ctx) {
-            const { subnigditId, page } = ctx.request.query;
+            const { subnigditId, page, type } = ctx.request.query;
             const limit = 10;
             if (!subnigditId)
                 return ctx.send("Subnigdit id not provided", 400);
@@ -191,14 +193,21 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
             if (page)
                 startPage = page * limit;
             let reports = await strapi.entityService.findMany("api::report.report", {
-                where: {
-                    subnigdit: subnigditId,
+                filters: {
+                    $and: [
+                        {
+                            subnigdit: subnigditId,
+                        },
+                        {
+                            type: type,
+                        },
+                    ],
                 },
                 populate: "*",
                 limit: limit,
                 start: startPage,
             });
-            reports = reports.map(report => {
+            reports = reports.map((report) => {
                 delete report.updatedBy;
                 delete report.createdBy;
                 return report;
@@ -206,25 +215,60 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
             return await sanitize.contentAPI.output(reports);
         },
         async findToNigdit(ctx) {
-            const { page } = ctx.request.query;
+            const { page, type } = ctx.request.query;
             const limit = 10;
             let startPage = 0;
             if (page)
                 startPage = page * limit;
             let reports = await strapi.entityService.findMany("api::report.report", {
-                where: {
-                    toSubnigdit: false,
+                filters: {
+                    $and: [
+                        {
+                            toSubnigdit: false,
+                        },
+                        {
+                            type: type,
+                        },
+                    ],
                 },
                 populate: "*",
                 limit: limit,
                 start: startPage,
             });
-            reports = reports.map(report => {
+            reports = reports.map((report) => {
                 delete report.updatedBy;
                 delete report.createdBy;
                 return report;
             });
             return await sanitize.contentAPI.output(reports);
+        },
+        async deleteWithContent(ctx) {
+            const id = ctx.params.id;
+            const report = await strapi.entityService.findOne("api::report.report", id, {
+                populate: "*",
+            });
+            if (!report)
+                return ctx.send("Report not found", 404);
+            switch (report.type) {
+                case "post":
+                    await strapi.service("api::post.post").removePostValues(undefined, report.contentId);
+                    break;
+                case "comment":
+                    await strapi.service("api::comment.comment").removeCommentValues(undefined, report.contentId);
+                    break;
+                case "reply":
+                    await strapi.service("api::reply.reply").removeReplyValues(undefined, report.contentId);
+                    break;
+            }
+            await strapi.services("api::report.report").removeDuplicateReports(report);
+            ctx.send("Content deleted", 200);
+        },
+        async delete(ctx) {
+            const id = ctx.params.id;
+            const report = await strapi.entityService.findOne("api::report.report", id, {
+                populate: "*",
+            });
+            await strapi.services("api::report.report").removeDuplicateReports(report);
         }
     };
 });

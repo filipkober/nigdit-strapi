@@ -1,13 +1,17 @@
 'use strict';
-Object.defineProperty(exports, "__esModule", { value: true });
+
+/**
+ * subnigdit service
+ */
+import { Strapi } from '@strapi/strapi';
 const { createCoreService } = require('@strapi/strapi').factories;
-module.exports = createCoreService('api::subnigdit.subnigdit', ({ strapi }) => ({
-    async isSubnigditAdmin(userId, subId) {
+
+module.exports = createCoreService('api::subnigdit.subnigdit', ({ strapi } : { strapi: Strapi }) => ({
+    async isSubnigditAdmin(userId, subId){
         const subnigdit = await strapi.entityService.findOne("api::subnigdit.subnigdit", subId, {
             populate: "*",
         });
-        if (!subnigdit)
-            return false;
+        if(!subnigdit) return false;
         const admins = subnigdit.moderators.map(admin => admin.id);
         return admins.includes(userId);
     }

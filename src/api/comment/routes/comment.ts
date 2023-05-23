@@ -6,7 +6,7 @@
 
 const { createCoreRouter } = require('@strapi/strapi').factories;
 
-module.exports = createCoreRouter('api::comment.comment', {
+export default createCoreRouter('api::comment.comment', {
     config: {
         create: {
             policies: ['global::not-banned']
