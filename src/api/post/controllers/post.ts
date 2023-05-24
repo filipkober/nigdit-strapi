@@ -6,6 +6,30 @@
 
 const { createCoreController } = require('@strapi/strapi').factories;
 
+const feedQuery = {
+    fields: "*",
+    populate: {        
+        owner: {
+            fields: ['username'],
+        },
+        media: {
+          populate: '*',
+        },
+        subnigdit: {
+          fields: ['name',"description"],
+          populate: {
+            subscribers: { count: true },                             
+            icon: {
+                populate: "*",
+            }
+          }
+        },
+        comments: {
+          fields: []
+        },
+    },             
+}
+
 module.exports = createCoreController('api::post.post', ({strapi})=>{
     return {
         async delete(ctx)
@@ -99,15 +123,11 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
         },
 
         // Proste wersje algorytmów
-
         async getPop(ctx)
         {
             try
             {
-                const posts = await strapi.entityService.findMany("api::post.post", {
-                    populate: "*"
-                  })
-                
+                const posts = await strapi.entityService.findMany("api::post.post", feedQuery)                
                 var i = -1
                 const samples = posts.map((post)=>{      
                 i+=1  
@@ -122,11 +142,11 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 samples.sort((a, b) => a.popularity - b.popularity);
                 samples.reverse()
                 const sorted = samples.map((sample)=>{
-                    return(    
-                        posts[sample.pozycja]
+                    return(  
+                        posts[sample.pozycja]  
                     )
                     })
-                ctx.send(sorted, 200)
+                ctx.send({data: sorted}, 200)
             }
             catch(err)
             {
@@ -137,9 +157,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
         {
             try
             {
-                const posts = await strapi.entityService.findMany("api::post.post", {
-                    populate: "*"
-                  })
+                const posts = await strapi.entityService.findMany("api::post.post", feedQuery)
                 
                 var i = -1
                 const samples = posts.map((post)=>{      
@@ -159,7 +177,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]
                     )
                     })
-                ctx.send(sorted, 200)
+                ctx.send({data: sorted}, 200)
             }
             catch(err)
             {
@@ -170,12 +188,10 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
         {
             try
             {
-                const posts = await strapi.entityService.findMany("api::post.post", {
-                    populate: "*"
-                })
+                const posts = await strapi.entityService.findMany("api::post.post", feedQuery)
                 posts.sort((a, b) => a.createdAt - b.createdAt);
                 posts.reverse()
-                ctx.send(posts, 200)
+                ctx.send({data: posts}, 200)
             }
             catch(err)
             {
@@ -186,10 +202,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
         {
             try
             {
-                const posts = await strapi.entityService.findMany("api::post.post", {
-                    populate: "*"
-                  })
-                
+                const posts = await strapi.entityService.findMany("api::post.post", feedQuery)                
                 var i = -1
                 const samples = posts.map((post)=>{      
                     i+=1  
@@ -220,7 +233,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]
                     )
                 })
-                ctx.send(sorted, 200)
+                ctx.send({data: sorted}, 200)
             }
             catch(err)
             {
@@ -230,11 +243,11 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
         //subscribed only
 
         async getPopSub(ctx)
-        {
+        {            
             try
-            {
-                const userId = ctx.state.user.id
-                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", {filters: { subscribers: userId } , populate: "*"});
+            {                               
+                const userId = ctx.state.user.id //coś nie wykrywa usera
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", {filters: { subscribers: userId } , ...feedQuery});
                 const userSubnigditsIds = userSubnigdits.map(group => group.id);                
                 const posts = await strapi.entityService.findMany("api::post.post", {filters: { subnigdit: userSubnigditsIds }, populate: "*"})
 
@@ -257,11 +270,13 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 samples.sort((a, b) => a.popularity - b.popularity);
                 samples.reverse()
                 const sorted = samples.map((sample)=>{
-                    return(    
+                    return(   
+                        {"data": [
                         posts[sample.pozycja]
+                        ] }
                     )
                     })
-                ctx.send(sorted, 200)
+                ctx.send({data: sorted}, 200)
             }
             catch(err)
             {
@@ -273,7 +288,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
             try
             {
                 const userId = ctx.state.user.id
-                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", {filters: { subscribers: userId } , populate: "*"});
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", {filters: { subscribers: userId } , ...feedQuery});
                 const userSubnigditsIds = userSubnigdits.map(group => group.id);                
                 const posts = await strapi.entityService.findMany("api::post.post", {filters: { subnigdit: userSubnigditsIds }, populate: "*"})
                 
@@ -295,7 +310,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]
                     )
                     })
-                ctx.send(sorted, 200)
+                ctx.send({data: sorted}, 200)
             }
             catch(err)
             {
@@ -307,12 +322,12 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
             try
             {
                 const userId = ctx.state.user.id
-                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", {filters: { subscribers: userId } , populate: "*"});
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", {filters: { subscribers: userId } , ...feedQuery});
                 const userSubnigditsIds = userSubnigdits.map(group => group.id);                
                 const posts = await strapi.entityService.findMany("api::post.post", {filters: { subnigdit: userSubnigditsIds }, populate: "*"})
                 posts.sort((a, b) => a.createdAt - b.createdAt);
                 posts.reverse()
-                ctx.send(posts, 200)
+                ctx.send({data: posts}, 200)
             }
             catch(err)
             {
@@ -324,7 +339,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
             try
             {
                 const userId = ctx.state.user.id
-                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", {filters: { subscribers: userId } , populate: "*"});
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", {filters: { subscribers: userId } , ...feedQuery});
                 const userSubnigditsIds = userSubnigdits.map(group => group.id);                
                 const posts = await strapi.entityService.findMany("api::post.post", {filters: { subnigdit: userSubnigditsIds }, populate: "*"})
                 
@@ -358,7 +373,8 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                         posts[sample.pozycja]
                     )
                 })
-                ctx.send(sorted, 200)
+        
+                ctx.send({data: sorted}, 200)
             }
             catch(err)
             {
