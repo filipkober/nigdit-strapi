@@ -210,9 +210,9 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
         async getPopSub(ctx) {
             try {
                 const userId = ctx.state.user.id; //coś nie wykrywa usera
-                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, ...feedQuery });
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map(group => group.id);
-                const posts = await strapi.entityService.findMany("api::post.post", { filters: { subnigdit: userSubnigditsIds }, populate: "*" });
+                const posts = await strapi.entityService.findMany("api::post.post", { filters: { subnigdit: userSubnigditsIds }, ...feedQuery });
                 const postsIds = posts.map(group => group.title);
                 /* eslint-disable */ console.log(...oo_oo(`b8a7ede_0`, "Posty z subskrybowanych subnigditów:"));
                 /* eslint-disable */ console.log(...oo_oo(`b8a7ede_1`, userSubnigditsIds));
@@ -242,9 +242,9 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
         async getTopSub(ctx) {
             try {
                 const userId = ctx.state.user.id;
-                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, ...feedQuery });
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map(group => group.id);
-                const posts = await strapi.entityService.findMany("api::post.post", { filters: { subnigdit: userSubnigditsIds }, populate: "*" });
+                const posts = await strapi.entityService.findMany("api::post.post", { filters: { subnigdit: userSubnigditsIds }, ...feedQuery });
                 var i = -1;
                 const samples = posts.map((post) => {
                     i += 1;
@@ -268,9 +268,9 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
         async getNewSub(ctx) {
             try {
                 const userId = ctx.state.user.id;
-                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, ...feedQuery });
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map(group => group.id);
-                const posts = await strapi.entityService.findMany("api::post.post", { filters: { subnigdit: userSubnigditsIds }, populate: "*" });
+                const posts = await strapi.entityService.findMany("api::post.post", { filters: { subnigdit: userSubnigditsIds }, ...feedQuery });
                 posts.sort((a, b) => a.createdAt - b.createdAt);
                 posts.reverse();
                 ctx.send({ data: posts }, 200);
@@ -282,9 +282,9 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
         async getHotSub(ctx) {
             try {
                 const userId = ctx.state.user.id;
-                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, ...feedQuery });
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map(group => group.id);
-                const posts = await strapi.entityService.findMany("api::post.post", { filters: { subnigdit: userSubnigditsIds }, populate: "*" });
+                const posts = await strapi.entityService.findMany("api::post.post", { filters: { subnigdit: userSubnigditsIds }, ...feedQuery });
                 var i = -1;
                 const samples = posts.map((post) => {
                     i += 1;
