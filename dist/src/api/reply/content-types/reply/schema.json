@@ -29,7 +29,8 @@
             "inversedBy": "replies"
         },
         "votes": {
-            "type": "biginteger"
+            "type": "biginteger",
+            "default": "0"
         }
     }
 }
