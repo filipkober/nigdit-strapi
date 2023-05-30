@@ -74,13 +74,11 @@
             "targetField": "name",
             "required": true
         },
-        "reports": {
-            "type": "integer"
-        },
         "contentReports": {
             "type": "relation",
             "relation": "oneToMany",
             "target": "api::report.report",
+            "private": true,
             "mappedBy": "subnigdit"
         }
     }
