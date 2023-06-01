@@ -9,11 +9,11 @@ const { createCoreController } = require("@strapi/strapi").factories;
 module.exports = createCoreController("api::report.report", ({ strapi }) => {
     return {
         async create(ctx) {
-            const { type, reason, contentId, toSubnigdit } = ctx.request.body;
+            const { type, reason, contentId, toSubnigdit, subnigditId } = ctx.request.body;
             const user = ctx.state.user;
             if (!user)
                 return ctx.send({ message: "Unauthorized" }, 401);
-            if (!type || !reason || !contentId || toSubnigdit === undefined)
+            if (!type || !reason || !contentId || toSubnigdit === undefined || (toSubnigdit && !subnigditId))
                 return ctx.send({ message: "Missing fields" }, 400);
             let content;
             let owner;
@@ -74,7 +74,7 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                     });
                     if (!post)
                         return ctx.send({ message: "Post not found" }, 404);
-                    content = post.Title + "\n" + post.Description;
+                    content = "Title: " + post.title + "\n Description: " + post.description;
                     owner = post.owner.id;
                     media = post.Media || undefined;
                     break;
@@ -93,6 +93,8 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                     reporter: user === null || user === void 0 ? void 0 : user.id,
                     toSubnigdit,
                     publishedAt: new Date(),
+                    subnigdit: subnigditId,
+                    reason
                 },
                 populate: "*",
             });
