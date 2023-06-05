@@ -14,7 +14,7 @@ module.exports = createCoreController('api::comment.comment', ({strapi})=>{
         const clonedVotes = JSON.parse(JSON.stringify(user.votes))
         const comment = await strapi.entityService.findOne("api::comment.comment", id)
         if(!comment) return ctx.send("Comment not found", 404)
-        let commentVotes = comment.votes
+        let commentVotes = Number(comment.votes)
         if(clonedVotes.upvotes.comments.includes(id)){
             clonedVotes.upvotes.comments = clonedVotes.upvotes.comments.filter((commentId)=>commentId!=id)
             commentVotes--
@@ -29,7 +29,7 @@ module.exports = createCoreController('api::comment.comment', ({strapi})=>{
 
         await strapi.entityService.update("api::comment.comment", id, {
             data:{
-                Votes: commentVotes
+                votes: commentVotes
             }
         })
 
@@ -46,7 +46,7 @@ module.exports = createCoreController('api::comment.comment', ({strapi})=>{
         const clonedVotes = JSON.parse(JSON.stringify(user.votes))
         const comment = await strapi.entityService.findOne("api::comment.comment", id)
         if(!comment) return ctx.send("Comment not found", 404)
-        let commentVotes = comment.Votes
+        let commentVotes = Number(comment.votes)
         if(clonedVotes.downvotes.comments.includes(id)){
             clonedVotes.downvotes.comments = clonedVotes.downvotes.comments.filter((commentId)=>commentId!=id)
             commentVotes++
@@ -61,7 +61,7 @@ module.exports = createCoreController('api::comment.comment', ({strapi})=>{
 
         await strapi.entityService.update("api::comment.comment", id, {
             data:{
-                Votes: commentVotes
+                votes: commentVotes
             }
         })
 
