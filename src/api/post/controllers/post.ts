@@ -63,7 +63,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
             const clonedVotes = JSON.parse(JSON.stringify(user.votes))
             const post = await strapi.entityService.findOne("api::post.post", id)
             if(!post) return ctx.send("Post not found", 404)
-            let postVotes = post.votes
+            let postVotes = Number(post.votes)
             if(clonedVotes.upvotes.posts.includes(id)){
                 clonedVotes.upvotes.posts = clonedVotes.upvotes.posts.filter((postId)=>postId!=id)
                 postVotes--
@@ -75,7 +75,6 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
                 clonedVotes.upvotes.posts.push(id)
                 postVotes++
             }
-
             await strapi.entityService.update("api::post.post", id, {
                 data:{
                     votes: postVotes
@@ -95,7 +94,7 @@ module.exports = createCoreController('api::post.post', ({strapi})=>{
             const clonedVotes = JSON.parse(JSON.stringify(user.votes))
             const post = await strapi.entityService.findOne("api::post.post", id)
             if(!post) return ctx.send("Post not found", 404)
-            let postVotes = post.votes
+            let postVotes = Number(post.votes)
             if(clonedVotes.downvotes.posts.includes(id)){
                 clonedVotes.downvotes.posts = clonedVotes.downvotes.posts.filter((postId)=>postId!=id)
                 postVotes++
