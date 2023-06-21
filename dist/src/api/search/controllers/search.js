@@ -12,7 +12,8 @@ module.exports = {
             },
             limit: 6,
             populate: {
-                icon: true
+                icon: true,
+                subscribers: { count: true },
             },
         });
         const subnigdits2 = subnigdits.map((subnigdit) => {
@@ -20,6 +21,7 @@ module.exports = {
                 id: subnigdit.id,
                 name: subnigdit.name,
                 icon: subnigdit.icon,
+                subscribers: subnigdit.subscribers.count
             });
         });
         ctx.send(subnigdits2, 200);

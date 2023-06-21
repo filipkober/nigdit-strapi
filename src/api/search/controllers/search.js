@@ -13,7 +13,8 @@ module.exports = {
       },      
       limit: 6,
       populate: {
-        icon: true
+        icon: true,
+        subscribers: { count: true },
       },
     });
 
@@ -22,6 +23,7 @@ module.exports = {
         id: subnigdit.id,
         name: subnigdit.name,
         icon: subnigdit.icon,
+        subscribers: subnigdit.subscribers.count
       })
     })
     ctx.send(subnigdits2,200)
