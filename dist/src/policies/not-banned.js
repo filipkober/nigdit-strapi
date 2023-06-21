@@ -4,7 +4,7 @@ const utils = require('@strapi/utils');
 const { PolicyError } = utils.errors;
 exports.default = async (policyContext, config, { strapi }) => {
     const user = policyContext.state.user;
-    const { subnigdit, comment, post } = policyContext.request.body;
+    const { subnigdit, comment, post } = policyContext.request.body.data;
     if (subnigdit) {
         if (!(user === null || user === void 0 ? void 0 : user.bans.includes(subnigdit)))
             return true;
