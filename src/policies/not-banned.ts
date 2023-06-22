@@ -3,7 +3,7 @@ const {PolicyError} = utils.errors;
 
 export default async (policyContext, config, { strapi }) => {
     const user = policyContext.state.user;
-    const { subnigdit, comment, post } = policyContext.request.body;
+    const { subnigdit, comment, post } = policyContext.request.body.data;
     if (subnigdit){
         if(!user?.bans.includes(subnigdit)) return true;
     }

@@ -71,6 +71,17 @@ module.exports = createCoreController('api::comment.comment', ({strapi})=>{
             }
         })
         ctx.send(updatedUser.votes, 200)
+    },
+    async create(ctx){
+
+        if(!ctx.request.body.data.post) return ctx.send("Post not found", 404)
+
+        ctx.request.body.data.owner = ctx.state.user.id;
+        ctx.request.body.data.replies = undefined;
+        ctx.request.body.data.votes = 0;
+
+        let {data, meta} = await super.create(ctx);
+        ctx.send({data, meta});
     }
 }
 });

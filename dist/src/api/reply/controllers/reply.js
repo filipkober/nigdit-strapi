@@ -1,9 +1,7 @@
-'use strict';
-/**
- * reply controller
- */
-const { createCoreController } = require('@strapi/strapi').factories;
-module.exports = createCoreController('api::reply.reply', ({ strapi }) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const { createCoreController } = require("@strapi/strapi").factories;
+module.exports = createCoreController("api::reply.reply", ({ strapi }) => {
     return {
         async upVote(ctx) {
             const user = ctx.state.user;
@@ -28,13 +26,13 @@ module.exports = createCoreController('api::reply.reply', ({ strapi }) => {
             }
             await strapi.entityService.update("api::reply.reply", id, {
                 data: {
-                    votes: commentVotes
-                }
+                    votes: commentVotes,
+                },
             });
             const updatedUser = await strapi.entityService.update("plugin::users-permissions.user", user.id, {
                 data: {
-                    votes: clonedVotes
-                }
+                    votes: clonedVotes,
+                },
             });
             ctx.send(updatedUser.votes, 200);
         },
@@ -61,15 +59,23 @@ module.exports = createCoreController('api::reply.reply', ({ strapi }) => {
             }
             await strapi.entityService.update("api::reply.reply", id, {
                 data: {
-                    votes: commentVotes
-                }
+                    votes: commentVotes,
+                },
             });
             const updatedUser = await strapi.entityService.update("plugin::users-permissions.user", user.id, {
                 data: {
-                    votes: clonedVotes
-                }
+                    votes: clonedVotes,
+                },
             });
             ctx.send(updatedUser.votes, 200);
-        }
+        },
+        async create(ctx) {
+            if (!ctx.request.body.data.comment)
+                return ctx.send("Comment not found", 404);
+            ctx.request.body.data.owner = ctx.state.user.id;
+            ctx.request.body.data.votes = 0;
+            let { data, meta } = await super.create(ctx);
+            ctx.send({ data, meta });
+        },
     };
 });
