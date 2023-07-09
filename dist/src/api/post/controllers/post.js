@@ -1,37 +1,39 @@
-'use strict';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * post controller
  */
-const { createCoreController } = require('@strapi/strapi').factories;
+const utils_1 = require("@strapi/utils");
+const { createCoreController } = require("@strapi/strapi").factories;
 const feedQuery = {
     fields: "*",
     populate: {
         owner: {
-            fields: ['username'],
+            fields: ["username"],
         },
         media: {
-            populate: '*',
+            populate: "*",
         },
         subnigdit: {
-            fields: ['name', "description"],
+            fields: ["name", "description"],
             populate: {
                 subscribers: { count: true },
                 icon: {
                     populate: "*",
-                }
-            }
+                },
+            },
         },
         comments: {
-            fields: []
+            fields: [],
         },
     },
 };
-module.exports = createCoreController('api::post.post', ({ strapi }) => {
+module.exports = createCoreController("api::post.post", ({ strapi }) => {
     return {
         async delete(ctx) {
             var _a;
             const post = await strapi.entityService.findOne("api::post.post", ctx.params.id, {
-                populate: "*" //<= wszystko lub nazwy relacji w arrayu
+                populate: "*", //<= wszystko lub nazwy relacji w arrayu
             });
             const mediaId = (_a = post.media) === null || _a === void 0 ? void 0 : _a.id;
             if (mediaId) {
@@ -44,8 +46,8 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
                     description: "[removed]",
                     type: "Text",
                     // ! TUDU:fiks diz szit
-                    reports: -1
-                }
+                    reports: -1,
+                },
             });
             ctx.send(newPost, 200);
         },
@@ -72,13 +74,13 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
             }
             await strapi.entityService.update("api::post.post", id, {
                 data: {
-                    votes: postVotes
-                }
+                    votes: postVotes,
+                },
             });
             const updatedUser = await strapi.entityService.update("plugin::users-permissions.user", user.id, {
                 data: {
-                    votes: clonedVotes
-                }
+                    votes: clonedVotes,
+                },
             });
             ctx.send(updatedUser.votes, 200);
         },
@@ -105,13 +107,13 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
             }
             await strapi.entityService.update("api::post.post", id, {
                 data: {
-                    votes: postVotes
-                }
+                    votes: postVotes,
+                },
             });
             const updatedUser = await strapi.entityService.update("plugin::users-permissions.user", user.id, {
                 data: {
-                    votes: clonedVotes
-                }
+                    votes: clonedVotes,
+                },
             });
             ctx.send(updatedUser.votes, 200);
         },
@@ -124,16 +126,16 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
                 var i = -1;
                 const samples = posts.map((post) => {
                     i += 1;
-                    return ({
+                    return {
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: post.comments.length * 3 + parseInt(post.votes) //tu powinna być suma dv + uv
-                    });
+                        popularity: post.comments.length * 3 + parseInt(post.votes), //tu powinna być suma dv + uv
+                    };
                 });
                 samples.sort((a, b) => a.popularity - b.popularity);
                 samples.reverse();
                 const sorted = samples.map((sample) => {
-                    return (posts[sample.pozycja]);
+                    return posts[sample.pozycja];
                 });
                 ctx.send({ data: sorted.slice(start, start + limit) }, 200);
             }
@@ -149,16 +151,16 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
                 var i = -1;
                 const samples = posts.map((post) => {
                     i += 1;
-                    return ({
+                    return {
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: parseInt(post.votes)
-                    });
+                        popularity: parseInt(post.votes),
+                    };
                 });
                 samples.sort((a, b) => a.popularity - b.popularity);
                 samples.reverse();
                 const sorted = samples.map((sample) => {
-                    return (posts[sample.pozycja]);
+                    return posts[sample.pozycja];
                 });
                 ctx.send({ data: sorted.slice(start, start + limit) }, 200);
             }
@@ -197,16 +199,18 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
                     else {
                         differenceInDays = 0;
                     }
-                    return ({
+                    return {
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: post.comments.length * 3 + parseInt(post.votes) + differenceInDays
-                    });
+                        popularity: post.comments.length * 3 +
+                            parseInt(post.votes) +
+                            differenceInDays,
+                    };
                 });
                 samples.sort((a, b) => a.popularity - b.popularity);
                 samples.reverse();
                 const sorted = samples.map((sample) => {
-                    return (posts[sample.pozycja]);
+                    return posts[sample.pozycja];
                 });
                 ctx.send({ data: sorted.slice(start, start + limit) }, 200);
             }
@@ -219,29 +223,30 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
             try {
                 const userId = ctx.state.user.id; //coś nie wykrywa usera
                 const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
-                const userSubnigditsIds = userSubnigdits.map(group => group.id);
-                const posts = await strapi.entityService.findMany("api::post.post", { filters: { subnigdit: userSubnigditsIds }, ...feedQuery });
+                const userSubnigditsIds = userSubnigdits.map((group) => group.id);
+                const posts = await strapi.entityService.findMany("api::post.post", {
+                    filters: { subnigdit: userSubnigditsIds },
+                    ...feedQuery,
+                });
                 const start = ctx.query.start;
                 const limit = ctx.query.limit;
-                const postsIds = posts.map(group => group.title);
+                const postsIds = posts.map((group) => group.title);
                 console.log("Posty z subskrybowanych subnigditów:");
                 console.log(userSubnigditsIds);
                 console.log(postsIds);
                 var i = -1;
                 const samples = posts.map((post) => {
                     i += 1;
-                    return ({
+                    return {
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: post.comments.length * 3 + parseInt(post.votes) //tu powinna być suma dv + uv
-                    });
+                        popularity: post.comments.length * 3 + parseInt(post.votes), //tu powinna być suma dv + uv
+                    };
                 });
                 samples.sort((a, b) => a.popularity - b.popularity);
                 samples.reverse();
                 const sorted = samples.map((sample) => {
-                    return ({ "data": [
-                            posts[sample.pozycja]
-                        ] });
+                    return { data: [posts[sample.pozycja]] };
                 });
                 ctx.send({ data: sorted.slice(start, start + limit) }, 200);
             }
@@ -253,23 +258,26 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
             try {
                 const userId = ctx.state.user.id;
                 const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
-                const userSubnigditsIds = userSubnigdits.map(group => group.id);
-                const posts = await strapi.entityService.findMany("api::post.post", { filters: { subnigdit: userSubnigditsIds }, ...feedQuery });
+                const userSubnigditsIds = userSubnigdits.map((group) => group.id);
+                const posts = await strapi.entityService.findMany("api::post.post", {
+                    filters: { subnigdit: userSubnigditsIds },
+                    ...feedQuery,
+                });
                 const start = ctx.query.start;
                 const limit = ctx.query.limit;
                 var i = -1;
                 const samples = posts.map((post) => {
                     i += 1;
-                    return ({
+                    return {
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: parseInt(post.votes)
-                    });
+                        popularity: parseInt(post.votes),
+                    };
                 });
                 samples.sort((a, b) => a.popularity - b.popularity);
                 samples.reverse();
                 const sorted = samples.map((sample) => {
-                    return (posts[sample.pozycja]);
+                    return posts[sample.pozycja];
                 });
                 ctx.send({ data: sorted.slice(start, start + limit) }, 200);
             }
@@ -281,8 +289,11 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
             try {
                 const userId = ctx.state.user.id;
                 const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
-                const userSubnigditsIds = userSubnigdits.map(group => group.id);
-                const posts = await strapi.entityService.findMany("api::post.post", { filters: { subnigdit: userSubnigditsIds }, ...feedQuery });
+                const userSubnigditsIds = userSubnigdits.map((group) => group.id);
+                const posts = await strapi.entityService.findMany("api::post.post", {
+                    filters: { subnigdit: userSubnigditsIds },
+                    ...feedQuery,
+                });
                 const start = ctx.query.start;
                 const limit = ctx.query.limit;
                 posts.sort((a, b) => a.createdAt - b.createdAt);
@@ -297,8 +308,11 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
             try {
                 const userId = ctx.state.user.id;
                 const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
-                const userSubnigditsIds = userSubnigdits.map(group => group.id);
-                const posts = await strapi.entityService.findMany("api::post.post", { filters: { subnigdit: userSubnigditsIds }, ...feedQuery });
+                const userSubnigditsIds = userSubnigdits.map((group) => group.id);
+                const posts = await strapi.entityService.findMany("api::post.post", {
+                    filters: { subnigdit: userSubnigditsIds },
+                    ...feedQuery,
+                });
                 const start = ctx.query.start;
                 const limit = ctx.query.limit;
                 var i = -1;
@@ -314,22 +328,67 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => {
                     else {
                         differenceInDays = 0;
                     }
-                    return ({
+                    return {
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: post.comments.length * 3 + parseInt(post.votes) + differenceInDays
-                    });
+                        popularity: post.comments.length * 3 +
+                            parseInt(post.votes) +
+                            differenceInDays,
+                    };
                 });
                 samples.sort((a, b) => a.popularity - b.popularity);
                 samples.reverse();
                 const sorted = samples.map((sample) => {
-                    return (posts[sample.pozycja]);
+                    return posts[sample.pozycja];
                 });
                 ctx.send({ data: sorted.slice(start, start + limit) }, 200);
             }
             catch (err) {
                 ctx.body = err;
             }
+        },
+        async create(ctx) {
+            const { user } = ctx.state;
+            const { title, subnigdit, nsfw, type } = ctx.request.body;
+            let post;
+            if (type === "Text") {
+                const { description } = ctx.request.body;
+                post = await strapi.entityService.create("api::post.post", {
+                    data: {
+                        title,
+                        description,
+                        subnigdit,
+                        nsfw,
+                        type,
+                        owner: user.id,
+                    },
+                    populate: "*",
+                });
+            }
+            else {
+                post = await strapi.entityService.create("api::post.post", {
+                    data: {
+                        title,
+                        subnigdit,
+                        nsfw,
+                        type,
+                        owner: user.id,
+                    },
+                    files: {
+                        media: ctx.request.files["files.media"],
+                    },
+                    populate: "*",
+                });
+            }
+            const sanitizedEntity = await utils_1.sanitize.contentAPI.output(post);
+            delete sanitizedEntity.owner.password;
+            delete sanitizedEntity.owner.email;
+            delete sanitizedEntity.owner.resetPasswordToken;
+            delete sanitizedEntity.owner.confirmationToken;
+            delete sanitizedEntity.owner.provider;
+            delete sanitizedEntity.createdBy;
+            delete sanitizedEntity.updatedBy;
+            return ctx.send({ data: sanitizedEntity }, 200);
         },
     };
 });

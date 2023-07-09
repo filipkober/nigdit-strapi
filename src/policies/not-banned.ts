@@ -3,7 +3,22 @@ const {PolicyError} = utils.errors;
 
 export default async (policyContext, config, { strapi }) => {
     const user = policyContext.state.user;
-    const { subnigdit, comment, post } = policyContext.request.body.data;
+    let subnigdit = policyContext.request.body.data?.subnigdit;
+    let comment = policyContext.request.body.data?.comment;
+    let post = policyContext.request.body.data?.post;
+    if(!subnigdit && !comment && !post) {
+        subnigdit = policyContext.request.body.subnigdit;
+        comment = policyContext.request.body.comment;
+        post = policyContext.request.body.post;
+    }
+    if(!subnigdit && !comment && !post) {
+        throw new PolicyError(
+            "There's an error with this request",
+            {
+                details: "subnigdit, comment or post not found"
+            }
+        )
+    }
     if (subnigdit){
         if(!user?.bans.includes(subnigdit)) return true;
     }
