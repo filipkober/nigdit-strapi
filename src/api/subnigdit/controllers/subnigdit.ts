@@ -63,4 +63,25 @@ module.exports = createCoreController('api::subnigdit.subnigdit', ({strapi})=>{
             }
             ctx.send(joined, 200)
         },
+        async create(ctx){
+            const user = ctx.state.user
+            const {name, description, rules} = ctx.request.body
+            const subscribers = [user.id]
+            const owner = user.id;
+            const subnigdit = await strapi.entityService.create("api::subnigdit.subnigdit", {
+                data: {
+                    name,
+                    description,
+                    rules: JSON.parse(rules),
+                    subscribers,
+                    owner,
+                    name_uid: name.toLowerCase().replace(/_/g, "-"),
+                },
+                files: {
+                    icon: ctx.request.files["files.icon"],
+                    banner: ctx.request.files["files.banner"],
+                },
+            })
+            ctx.send(subnigdit, 200)
+        }
     }});

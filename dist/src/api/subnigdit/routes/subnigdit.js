@@ -3,4 +3,10 @@
  * subnigdit router
  */
 const { createCoreRouter } = require('@strapi/strapi').factories;
-module.exports = createCoreRouter('api::subnigdit.subnigdit');
+module.exports = createCoreRouter('api::subnigdit.subnigdit', {
+    config: {
+        create: {
+            policies: ['global::has-no-subnigdits']
+        }
+    }
+});
