@@ -86,26 +86,28 @@ module.exports = createCoreController('api::subnigdit.subnigdit', ({strapi})=>{
             ctx.send(subnigdit, 200)
         },
         async update(ctx){
-            const user = ctx.state.user
             const { description, rules, moderators } = ctx.request.body
 
+            let fileUploaded = false;
             let sub;
-            if(ctx.request.files["files.icon"] || ctx.request.files['files.banner']){
+            if(ctx.request.files["files.icon"] || ctx.request.files['files.banner']) fileUploaded = true;
+            
+            if(fileUploaded){
                 sub = await strapi.entityService.findOne("api::subnigdit.subnigdit", ctx.params.id, {
                     populate: ['banner', 'icon']
                 })
             }
             
-            const subnigdit = await strapi.entityService.update("api::subnigdit.subnigdit", {
+            const subnigdit = await strapi.entityService.update("api::subnigdit.subnigdit",ctx.params.id, {
                 data: {
                     description,
                     rules: rules ? JSON.parse(rules) : undefined,
                     moderators: moderators ? JSON.parse(moderators) : undefined,
                 },
-                files: {
+                files: fileUploaded ? {
                     icon: ctx.request.files["files.icon"],
                     banner: ctx.request.files["files.banner"],
-                },
+                }: undefined,
             })
 
             if(ctx.request.files["files.icon"]){
@@ -126,5 +128,9 @@ module.exports = createCoreController('api::subnigdit.subnigdit', ({strapi})=>{
             }
 
             ctx.send(subnigdit, 200)
+        },
+        async delete(ctx){
+            await strapi.service('api::subnigdit.subnigdit').nukeSubnigdit(ctx.params.id);
+            ctx.send("💥", 200)
         }
     }});

@@ -10,6 +10,9 @@ module.exports = createCoreRouter('api::subnigdit.subnigdit', {
         },
         update: {
             policies: ['global::is-subnigdit-owner-or-nigdit-admin']
+        },
+        delete: {
+            policies: ['global::is-subnigdit-owner-or-nigdit-admin']
         }
     }
 });
