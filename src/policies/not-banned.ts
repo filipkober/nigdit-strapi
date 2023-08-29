@@ -3,6 +3,7 @@ const {PolicyError} = utils.errors;
 
 export default async (policyContext, config, { strapi }) => {
     const user = policyContext.state.user;
+    if(user.admin) return true;
     let subnigdit = policyContext.request.body.data?.subnigdit;
     let comment = policyContext.request.body.data?.comment;
     let post = policyContext.request.body.data?.post;

@@ -7,6 +7,9 @@ module.exports = createCoreRouter('api::subnigdit.subnigdit', {
     config: {
         create: {
             policies: ['global::has-no-subnigdits']
+        },
+        update: {
+            policies: ['global::is-subnigdit-owner-or-nigdit-admin']
         }
     }
 });

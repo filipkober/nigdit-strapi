@@ -16,14 +16,6 @@ export default {
         }
       );
 
-      const mediaId = fullUser.profilePicture?.id;
-      if (mediaId) {
-        const file = await strapi.plugins.upload.services.upload.findOne(
-          mediaId
-        );
-        await strapi.plugins.upload.services.upload.remove(file);
-      }
-
       const updatedUser = await strapi.entityService.update(
         "plugin::users-permissions.user",
         userId,
@@ -35,6 +27,14 @@ export default {
         populate: "*",
       }
       );
+
+      const mediaId = fullUser.profilePicture?.id;
+      if (mediaId) {
+        const file = await strapi.plugins.upload.services.upload.findOne(
+          mediaId
+        );
+        await strapi.plugins.upload.services.upload.remove(file);
+      }
 
       return updatedUser;
   },

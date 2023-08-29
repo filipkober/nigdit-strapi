@@ -54,7 +54,7 @@ module.exports = createCoreController('api::subnigdit.subnigdit', ({ strapi }) =
         },
         async create(ctx) {
             const user = ctx.state.user;
-            const { name, description, rules } = ctx.request.body;
+            const { name, description, rules, moderators } = ctx.request.body;
             const subscribers = [user.id];
             const owner = user.id;
             const subnigdit = await strapi.entityService.create("api::subnigdit.subnigdit", {
@@ -65,12 +65,51 @@ module.exports = createCoreController('api::subnigdit.subnigdit', ({ strapi }) =
                     subscribers,
                     owner,
                     name_uid: name.toLowerCase().replace(/_/g, "-"),
+                    moderators: JSON.parse(moderators),
                 },
                 files: {
                     icon: ctx.request.files["files.icon"],
                     banner: ctx.request.files["files.banner"],
                 },
             });
+            ctx.send(subnigdit, 200);
+        },
+        async update(ctx) {
+            const user = ctx.state.user;
+            const { description, rules, moderators } = ctx.request.body;
+            let sub;
+            if (ctx.request.files["files.icon"] || ctx.request.files['files.banner']) {
+                sub = await strapi.entityService.findOne("api::subnigdit.subnigdit", ctx.params.id, {
+                    populate: ['banner', 'icon']
+                });
+            }
+            const subnigdit = await strapi.entityService.update("api::subnigdit.subnigdit", {
+                data: {
+                    description,
+                    rules: rules ? JSON.parse(rules) : undefined,
+                    moderators: moderators ? JSON.parse(moderators) : undefined,
+                },
+                files: {
+                    icon: ctx.request.files["files.icon"],
+                    banner: ctx.request.files["files.banner"],
+                },
+            });
+            if (ctx.request.files["files.icon"]) {
+                if (sub.icon) {
+                    const imageEntry = await strapi.db.query('plugin::upload.file').delete({
+                        where: { id: sub.icon.id },
+                    });
+                    strapi.plugins.upload.services.upload.remove(imageEntry);
+                }
+            }
+            if (ctx.request.files["files.banner"]) {
+                if (sub.banner) {
+                    const imageEntry = await strapi.db.query('plugin::upload.file').delete({
+                        where: { id: sub.banner.id },
+                    });
+                    strapi.plugins.upload.services.upload.remove(imageEntry);
+                }
+            }
             ctx.send(subnigdit, 200);
         }
     };
