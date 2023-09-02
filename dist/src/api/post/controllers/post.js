@@ -390,5 +390,25 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
             delete sanitizedEntity.updatedBy;
             return ctx.send({ data: sanitizedEntity }, 200);
         },
+        async banAuthor(ctx) {
+            const { user } = ctx.state;
+            const { id } = ctx.params;
+            const post = await strapi.entityService.findOne("api::post.post", id, { populate: '*' });
+            if (!post)
+                return ctx.send("Post not found", 404);
+            const author = post.owner;
+            const authorId = author.id;
+            const clonedBans = JSON.parse(JSON.stringify(user.bans));
+            if (!clonedBans.includes(authorId)) {
+                clonedBans.push(authorId);
+            }
+            const updatedUser = await strapi.entityService.update("plugin::users-permissions.user", user.id, {
+                data: {
+                    bans: clonedBans,
+                },
+            });
+            const removedPost = await strapi.service("api::post.post").removePostValues(post);
+            ctx.send(removedPost, 200);
+        }
     };
 });

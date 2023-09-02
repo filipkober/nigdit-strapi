@@ -13,6 +13,6 @@ module.exports = createCoreRouter('api::post.post', {
         },
         create: {
             policies: ['global::not-banned']
-        }
+        },
     }
 });

@@ -21,7 +21,7 @@ module.exports = createCoreService('api::post.post', ({ strapi } : { strapi: Str
         await strapi.plugins.upload.services.upload.remove(file)
         }
 
-        await strapi.entityService.update("api::post.post", id, {
+        const removed = await strapi.entityService.update("api::post.post", id, {
             data:{
                 title: "[removed]",
                 description: "[removed]",
@@ -30,5 +30,6 @@ module.exports = createCoreService('api::post.post', ({ strapi } : { strapi: Str
                 reports: -1
             }
         })
+        return removed;
     }
 }));

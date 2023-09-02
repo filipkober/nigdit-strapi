@@ -16,7 +16,7 @@ module.exports = createCoreService('api::post.post', ({ strapi }) => ({
             const file = await strapi.plugins.upload.services.upload.findOne(mediaId);
             await strapi.plugins.upload.services.upload.remove(file);
         }
-        await strapi.entityService.update("api::post.post", id, {
+        const removed = await strapi.entityService.update("api::post.post", id, {
             data: {
                 title: "[removed]",
                 description: "[removed]",
@@ -25,5 +25,6 @@ module.exports = createCoreService('api::post.post', ({ strapi }) => ({
                 reports: -1
             }
         });
+        return removed;
     }
 }));
