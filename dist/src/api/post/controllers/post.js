@@ -117,37 +117,49 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
             });
             ctx.send(updatedUser.votes, 200);
         },
-        // Proste wersje algorytmów
-        async getPop(ctx) {
-            try {
-                const posts = await strapi.entityService.findMany("api::post.post", feedQuery);
-                const start = ctx.query.start;
-                const limit = ctx.query.limit;
-                var i = -1;
-                const samples = posts.map((post) => {
-                    i += 1;
-                    return {
-                        idPostu: post.id,
-                        pozycja: i,
-                        popularity: post.comments.length * 3 + parseInt(post.votes), //tu powinna być suma dv + uv
-                    };
-                });
-                samples.sort((a, b) => a.popularity - b.popularity);
-                samples.reverse();
-                const sorted = samples.map((sample) => {
-                    return posts[sample.pozycja];
-                });
-                ctx.send({ data: sorted.slice(start, start + limit) }, 200);
-            }
-            catch (err) {
-                ctx.body = err;
-            }
-        },
+        // Simple versions of algorithms with support for subnigdit page
+        // async getPop(ctx) {
+        //   try {
+        //     const posts = await strapi.entityService.findMany(
+        //       "api::post.post",
+        //       feedQuery
+        //     );
+        //     const start = ctx.query.start;
+        //     const limit = ctx.query.limit;
+        //     var i = -1;
+        //     const samples = posts.map((post) => {
+        //       i += 1;
+        //       return {
+        //         idPostu: post.id,
+        //         pozycja: i,
+        //         popularity: post.comments.length * 3 + parseInt(post.votes), //tu powinna być suma dv + uv
+        //       };
+        //     });
+        //     samples.sort((a, b) => a.popularity - b.popularity);
+        //     samples.reverse();
+        //     const sorted = samples.map((sample) => {
+        //       return posts[sample.pozycja];
+        //     });
+        //     ctx.send({ data: sorted.slice(start, start + limit) }, 200);
+        //   } catch (err) {
+        //     ctx.body = err;
+        //   }
+        // },
         async getTop(ctx) {
             try {
-                const posts = await strapi.entityService.findMany("api::post.post", feedQuery);
+                const subnigditFeedId = ctx.query.subnigdit;
                 const start = ctx.query.start;
                 const limit = ctx.query.limit;
+                let posts = null;
+                if (subnigditFeedId == null) {
+                    posts = await strapi.entityService.findMany("api::post.post", feedQuery);
+                }
+                else {
+                    posts = await strapi.entityService.findMany("api::post.post", {
+                        filters: { subnigdit: subnigditFeedId },
+                        ...feedQuery,
+                    });
+                }
                 var i = -1;
                 const samples = posts.map((post) => {
                     i += 1;
@@ -170,9 +182,19 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
         },
         async getNew(ctx) {
             try {
-                const posts = await strapi.entityService.findMany("api::post.post", feedQuery);
+                const subnigditFeedId = ctx.query.subnigdit;
                 const start = ctx.query.start;
                 const limit = ctx.query.limit;
+                let posts = null;
+                if (subnigditFeedId == null) {
+                    posts = await strapi.entityService.findMany("api::post.post", feedQuery);
+                }
+                else {
+                    posts = await strapi.entityService.findMany("api::post.post", {
+                        filters: { subnigdit: subnigditFeedId },
+                        ...feedQuery,
+                    });
+                }
                 posts.sort((a, b) => a.createdAt - b.createdAt);
                 posts.reverse();
                 ctx.send({ data: posts.slice(start, start + limit) }, 200);
@@ -183,9 +205,19 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
         },
         async getHot(ctx) {
             try {
-                const posts = await strapi.entityService.findMany("api::post.post", feedQuery);
+                const subnigditFeedId = ctx.query.subnigdit;
                 const start = ctx.query.start;
                 const limit = ctx.query.limit;
+                let posts = null;
+                if (subnigditFeedId == null) {
+                    posts = await strapi.entityService.findMany("api::post.post", feedQuery);
+                }
+                else {
+                    posts = await strapi.entityService.findMany("api::post.post", {
+                        filters: { subnigdit: subnigditFeedId },
+                        ...feedQuery,
+                    });
+                }
                 var i = -1;
                 const samples = posts.map((post) => {
                     i += 1;
@@ -218,64 +250,63 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
                 ctx.body = err;
             }
         },
-        //subscribed only
-        async getPopSub(ctx) {
-            try {
-                const userId = ctx.state.user.id; //coś nie wykrywa usera
-                const subnigditFeedId = ctx.query.subnigdit;
-                let userSubnigdits = null;
-                if (subnigditFeedId == null) {
-                    userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
-                }
-                else {
-                    userSubnigdits = [];
-                    let temp = await strapi.entityService.findOne("api::subnigdit.subnigdit", subnigditFeedId, { populate: "*" });
-                    userSubnigdits.push(temp);
-                }
-                const userSubnigditsIds = userSubnigdits.map((group) => group.id);
-                const posts = await strapi.entityService.findMany("api::post.post", {
-                    filters: { subnigdit: userSubnigditsIds },
-                    ...feedQuery,
-                });
-                const start = ctx.query.start;
-                const limit = ctx.query.limit;
-                const postsIds = posts.map((group) => group.title);
-                console.log("Posty z subskrybowanych subnigditów:");
-                console.log(userSubnigditsIds);
-                console.log(postsIds);
-                var i = -1;
-                const samples = posts.map((post) => {
-                    i += 1;
-                    return {
-                        idPostu: post.id,
-                        pozycja: i,
-                        popularity: post.comments.length * 3 + parseInt(post.votes), //tu powinna być suma dv + uv
-                    };
-                });
-                samples.sort((a, b) => a.popularity - b.popularity);
-                samples.reverse();
-                const sorted = samples.map((sample) => {
-                    return { data: [posts[sample.pozycja]] };
-                });
-                ctx.send({ data: sorted.slice(start, start + limit) }, 200);
-            }
-            catch (err) {
-                ctx.send("Kys: " + err, 200);
-            }
-        },
-        async getTopSub(ctx) {
+        //subscribed only variation
+        // async getPopSub(ctx) {
+        //   try {
+        //     const userId = ctx.state.user.id; //coś nie wykrywa usera
+        //     const subnigditFeedId = ctx.query.subnigdit;
+        //     let userSubnigdits = null;
+        //     if(subnigditFeedId == null)
+        //     {
+        //       userSubnigdits = await strapi.entityService.findMany(
+        //         "api::subnigdit.subnigdit",
+        //         { filters: { subscribers: userId }, populate: "*" }
+        //       );
+        //     }
+        //     else
+        //     {
+        //       userSubnigdits = []
+        //       let temp = await strapi.entityService.findOne(
+        //         "api::subnigdit.subnigdit",
+        //         subnigditFeedId,
+        //         { populate: "*" }
+        //       );
+        //       userSubnigdits.push(temp)
+        //     }
+        //     const userSubnigditsIds = userSubnigdits.map((group) => group.id);
+        //     const posts = await strapi.entityService.findMany("api::post.post", {
+        //       filters: { subnigdit: userSubnigditsIds },
+        //       ...feedQuery,
+        //     });
+        //     const start = ctx.query.start;
+        //     const limit = ctx.query.limit;
+        //     const postsIds = posts.map((group) => group.title);
+        //     console.log("Posty z subskrybowanych subnigditów:");
+        //     console.log(userSubnigditsIds);
+        //     console.log(postsIds);
+        //     var i = -1;
+        //     const samples = posts.map((post) => {
+        //       i += 1;
+        //       return {
+        //         idPostu: post.id,
+        //         pozycja: i,
+        //         popularity: post.comments.length * 3 + parseInt(post.votes), //tu powinna być suma dv + uv
+        //       };
+        //     });
+        //     samples.sort((a, b) => a.popularity - b.popularity);
+        //     samples.reverse();
+        //     const sorted = samples.map((sample) => {
+        //       return { data: [posts[sample.pozycja]] };
+        //     });
+        //     ctx.send({ data: sorted.slice(start, start + limit) }, 200);
+        //   } catch (err) {
+        //     ctx.send("Kys: " + err, 200);
+        //   }
+        // },
+        async getTopSubscribed(ctx) {
             try {
                 const userId = ctx.state.user.id;
-                const subnigditFeedId = ctx.query.subnigdit;
-                let userSubnigdits = null;
-                if (subnigditFeedId == null) {
-                    userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
-                }
-                else {
-                    userSubnigdits = [];
-                    let temp = await strapi.entityService.findOne("api::subnigdit.subnigdit", subnigditFeedId, { populate: "*" });
-                    userSubnigdits.push(temp);
-                }
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map((group) => group.id);
                 const posts = await strapi.entityService.findMany("api::post.post", {
                     filters: { subnigdit: userSubnigditsIds },
@@ -303,19 +334,10 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
                 ctx.body = err;
             }
         },
-        async getNewSub(ctx) {
+        async getNewSubscribed(ctx) {
             try {
                 const userId = ctx.state.user.id;
-                const subnigditFeedId = ctx.query.subnigdit;
-                let userSubnigdits = null;
-                if (subnigditFeedId == null) {
-                    userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
-                }
-                else {
-                    userSubnigdits = [];
-                    let temp = await strapi.entityService.findOne("api::subnigdit.subnigdit", subnigditFeedId, { populate: "*" });
-                    userSubnigdits.push(temp);
-                }
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map((group) => group.id);
                 const posts = await strapi.entityService.findMany("api::post.post", {
                     filters: { subnigdit: userSubnigditsIds },
@@ -331,19 +353,10 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
                 ctx.body = err;
             }
         },
-        async getHotSub(ctx) {
+        async getHotSubscribed(ctx) {
             try {
                 const userId = ctx.state.user.id;
-                const subnigditFeedId = ctx.query.subnigdit;
-                let userSubnigdits = null;
-                if (subnigditFeedId == null) {
-                    userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
-                }
-                else {
-                    userSubnigdits = [];
-                    let temp = await strapi.entityService.findOne("api::subnigdit.subnigdit", subnigditFeedId, { populate: "*" });
-                    userSubnigdits.push(temp);
-                }
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map((group) => group.id);
                 const posts = await strapi.entityService.findMany("api::post.post", {
                     filters: { subnigdit: userSubnigditsIds },
@@ -378,6 +391,124 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
                     return posts[sample.pozycja];
                 });
                 ctx.send({ data: sorted.slice(start, start + limit) }, 200);
+            }
+            catch (err) {
+                ctx.body = err;
+            }
+        },
+        //my posts variation
+        async getHotMyPosts(ctx) {
+            try {
+                const userId = ctx.state.user.id;
+                const subnigditFeedId = ctx.query.subnigdit;
+                const start = ctx.query.start;
+                const limit = ctx.query.limit;
+                let posts = null;
+                if (subnigditFeedId == null) {
+                    posts = await strapi.entityService.findMany("api::post.post", {
+                        filters: { owner: userId },
+                        ...feedQuery,
+                    });
+                }
+                else {
+                    posts = await strapi.entityService.findMany("api::post.post", {
+                        filters: { subnigdit: subnigditFeedId, owner: userId },
+                        ...feedQuery,
+                    });
+                }
+                var i = -1;
+                const samples = posts.map((post) => {
+                    i += 1;
+                    var dataPosta = new Date(post.createdAt);
+                    var today = new Date();
+                    var differenceInMs = today.getTime() - dataPosta.getTime();
+                    var differenceInDays = differenceInMs / (1000 * 60 * 60 * 24);
+                    if (differenceInDays < 1) {
+                        differenceInDays = 4202137;
+                    }
+                    else {
+                        differenceInDays = 0;
+                    }
+                    return {
+                        idPostu: post.id,
+                        pozycja: i,
+                        popularity: post.comments.length * 3 +
+                            parseInt(post.votes) +
+                            differenceInDays,
+                    };
+                });
+                samples.sort((a, b) => a.popularity - b.popularity);
+                samples.reverse();
+                const sorted = samples.map((sample) => {
+                    return posts[sample.pozycja];
+                });
+                ctx.send({ data: sorted.slice(start, start + limit) }, 200);
+            }
+            catch (err) {
+                ctx.body = err;
+            }
+        },
+        async getTopMyPosts(ctx) {
+            try {
+                const userId = ctx.state.user.id;
+                const subnigditFeedId = ctx.query.subnigdit;
+                const start = ctx.query.start;
+                const limit = ctx.query.limit;
+                let posts = null;
+                if (subnigditFeedId == null) {
+                    posts = await strapi.entityService.findMany("api::post.post", {
+                        filters: { owner: userId },
+                        ...feedQuery,
+                    });
+                }
+                else {
+                    posts = await strapi.entityService.findMany("api::post.post", {
+                        filters: { subnigdit: subnigditFeedId, owner: userId },
+                        ...feedQuery,
+                    });
+                }
+                var i = -1;
+                const samples = posts.map((post) => {
+                    i += 1;
+                    return {
+                        idPostu: post.id,
+                        pozycja: i,
+                        popularity: parseInt(post.votes),
+                    };
+                });
+                samples.sort((a, b) => a.popularity - b.popularity);
+                samples.reverse();
+                const sorted = samples.map((sample) => {
+                    return posts[sample.pozycja];
+                });
+                ctx.send({ data: sorted.slice(start, start + limit) }, 200);
+            }
+            catch (err) {
+                ctx.body = err;
+            }
+        },
+        async getNewMyPosts(ctx) {
+            try {
+                const userId = ctx.state.user.id;
+                const subnigditFeedId = ctx.query.subnigdit;
+                const start = ctx.query.start;
+                const limit = ctx.query.limit;
+                let posts = null;
+                if (subnigditFeedId == null) {
+                    posts = await strapi.entityService.findMany("api::post.post", {
+                        filters: { owner: userId },
+                        ...feedQuery,
+                    });
+                }
+                else {
+                    posts = await strapi.entityService.findMany("api::post.post", {
+                        filters: { subnigdit: subnigditFeedId, owner: userId },
+                        ...feedQuery,
+                    });
+                }
+                posts.sort((a, b) => a.createdAt - b.createdAt);
+                posts.reverse();
+                ctx.send({ data: posts.slice(start, start + limit) }, 200);
             }
             catch (err) {
                 ctx.body = err;

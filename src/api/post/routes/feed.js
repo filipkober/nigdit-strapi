@@ -1,13 +1,13 @@
 module.exports = {
     routes: [
-        {
-            method: 'GET',          //GET | POST | DELETE | PUT
-            path: '/posts/pop',           //http://localhost:1338/api/popular
-            handler: 'post.getPop', //kontroler.metoda
-            config: {
-                auth: false
-            }
-        },
+        // {
+        //     method: 'GET',          //GET | POST | DELETE | PUT
+        //     path: '/posts/pop',           //http://localhost:1338/api/posts/pop
+        //     handler: 'post.getPop', //kontroler.metoda
+        //     config: {
+        //         auth: false
+        //     }
+        // },
         {
             method: 'GET',
             path: '/posts/top',
@@ -34,23 +34,38 @@ module.exports = {
         },
         {
             method: 'GET',
-            path: '/posts/popSub',
-            handler: 'post.getPopSub',
-        },
-        {
-            method: 'GET',
             path: '/posts/topSub',
-            handler: 'post.getTopSub',
+            handler: 'post.getTopSubscribed',
         },
         {
             method: 'GET',
             path: '/posts/newSub',
-            handler: 'post.getNewSub',
+            handler: 'post.getNewSubscribed',
         },
         {
             method: 'GET',
             path: '/posts/hotSub',
-            handler: 'post.getHotSub',
-        }
+            handler: 'post.getHotSubscribed',
+        },
+        {
+            method: 'GET',
+            path: '/posts/topMy',
+            handler: 'post.getNewMyPosts',
+        },
+        {
+            method: 'GET',
+            path: '/posts/newMy',
+            handler: 'post.getNewMyPosts',
+        },
+        {
+            method: 'GET',
+            path: '/posts/hotMy',
+            handler: 'post.getHotMyPosts',
+        },
+        // {
+        //     method: 'GET',
+        //     path: '/posts/popSub',
+        //     handler: 'post.getPopSub',
+        // }
     ]
 }
