@@ -23,7 +23,8 @@ module.exports = {
         id: subnigdit.id,
         name: subnigdit.name,
         icon: subnigdit.icon,
-        subscribers: subnigdit.subscribers.count
+        subscribers: subnigdit.subscribers.count,
+        name_uid: subnigdit.name_uid
       })
     })
     ctx.send(subnigdits2,200)

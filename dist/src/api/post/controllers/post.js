@@ -15,7 +15,7 @@ const feedQuery = {
             populate: "*",
         },
         subnigdit: {
-            fields: ["name", "description"],
+            fields: ["name", "description", "name_uid"],
             populate: {
                 subscribers: { count: true },
                 icon: {
