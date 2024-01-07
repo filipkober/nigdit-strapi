@@ -16,7 +16,9 @@ module.exports = createCoreService('api::report.report', ({ strapi }) => ({
         });
         if (reports.length >= 1) {
             const reportIds = reports.map(report => report.id);
-            await strapi.entityService.delete("api::report.report", reportIds);
+            await strapi.db.queryBuilder("api::report.report").delete().where({
+                id: reportIds,
+            }).execute();
         }
     },
     async getSubnigditId(report) {
@@ -24,18 +26,41 @@ module.exports = createCoreService('api::report.report', ({ strapi }) => ({
         switch (report.type) {
             case "comment":
                 const comment = await strapi.entityService.findOne("api::comment.comment", report.contentId, {
-                    populate: "*",
+                    populate: {
+                        post: {
+                            fields: ["id"],
+                            populate: {
+                                subnigdit: {
+                                    fields: ["id"],
+                                },
+                            }
+                        }
+                    }
                 });
                 if (!comment)
                     return null;
-                subnidgitId = comment.subnigdit.id;
+                subnidgitId = comment.post.subnigdit.id;
             case "reply":
                 const reply = await strapi.entityService.findOne("api::reply.reply", report.contentId, {
-                    populate: "*",
+                    populate: {
+                        comment: {
+                            fields: ["id"],
+                            populate: {
+                                post: {
+                                    fields: ["id"],
+                                    populate: {
+                                        subnigdit: {
+                                            fields: ["id"],
+                                        },
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
                 if (!reply)
                     return null;
-                subnidgitId = reply.subnigdit.id;
+                subnidgitId = reply.comment.post.subnigdit.id;
                 break;
             case "post":
                 const post = await strapi.entityService.findOne("api::post.post", report.contentId, {

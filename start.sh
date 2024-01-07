@@ -1,0 +1,1 @@
+docker run -e NODE_ENV=development -e PORT=1338 -p 1338:1338 nigdit-strapi

@@ -1,3 +1,4 @@
+import { ID } from "@strapi/types/dist/types/core/entity";
 import { AdminApiToken } from "./../../../../schemas.d";
 ("use strict");
 
@@ -103,7 +104,7 @@ module.exports = createCoreController(
             if (!post) return ctx.send({message:"Post not found"}, 404);
             content = "Title: " + post.title + "\n Description: " + post.description;
             owner = post.owner.id;
-            media = post.Media || undefined;
+            media = post.media || undefined;
             break;
           default:
             return ctx.send({message:"Invalid type"}, 400);
@@ -139,18 +140,27 @@ module.exports = createCoreController(
           }
         );
         if (!report) return ctx.send("Report not found", 404);
-        let subnidgitId;
+        let subnidgitId: ID;
         switch (report.type) {
           case "comment":
             const comment = await strapi.entityService.findOne(
               "api::comment.comment",
               report.contentId,
               {
-                populate: "*",
+                populate: {
+                  post: {
+                    fields: ["id"],
+                    populate: {
+                      subnigdit: {
+                        fields: ["id"],
+                      }
+                    }
+                  }
+                }
               }
             );
             if (!comment) return ctx.send("Comment not found", 404);
-            subnidgitId = comment.subnigdit;
+            subnidgitId = comment.post.subnigdit.id;
             await strapi
               .service("api::comment.comment")
               .removeCommentValues(comment);
@@ -160,11 +170,25 @@ module.exports = createCoreController(
               "api::reply.reply",
               report.contentId,
               {
-                populate: "*",
+                populate: {
+                  comment: {
+                    fields: ["id"],
+                    populate: {
+                      post: {
+                        fields: ["id"],
+                        populate: {
+                          subnigdit: {
+                            fields: ["id"],
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
               }
             );
             if (!reply) return ctx.send("Reply not found", 404);
-            subnidgitId = reply.subnigdit;
+            subnidgitId = reply.comment.post.subnigdit.id;
             await strapi.service("api::reply.reply").removeReplyValues(reply);
             break;
           case "post":
@@ -176,7 +200,7 @@ module.exports = createCoreController(
               }
             );
             if (!post) return ctx.send("Post not found", 404);
-            subnidgitId = post.subnigdit;
+            subnidgitId = post.subnigdit.id;
             await strapi.service("api::post.post").removePostValues(post);
             break;
           default:
@@ -190,13 +214,14 @@ module.exports = createCoreController(
             populate: "*",
           }
         );
-        if (!reportedUser.bans.includes(subnidgitId.id)) {
+        const bans = reportedUser.bans as number[];
+        if (!bans.includes(subnidgitId as number)) {
           await strapi.entityService.update(
             "plugin::users-permissions.user",
             report.contentOwner.id,
             {
               data: {
-                bans: [...reportedUser.bans, subnidgitId.id],
+                bans: [...bans, subnidgitId],
               },
             }
           );

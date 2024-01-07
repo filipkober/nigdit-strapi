@@ -76,7 +76,7 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                         return ctx.send({ message: "Post not found" }, 404);
                     content = "Title: " + post.title + "\n Description: " + post.description;
                     owner = post.owner.id;
-                    media = post.Media || undefined;
+                    media = post.media || undefined;
                     break;
                 default:
                     return ctx.send({ message: "Invalid type" }, 400);
@@ -111,22 +111,45 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
             switch (report.type) {
                 case "comment":
                     const comment = await strapi.entityService.findOne("api::comment.comment", report.contentId, {
-                        populate: "*",
+                        populate: {
+                            post: {
+                                fields: ["id"],
+                                populate: {
+                                    subnigdit: {
+                                        fields: ["id"],
+                                    }
+                                }
+                            }
+                        }
                     });
                     if (!comment)
                         return ctx.send("Comment not found", 404);
-                    subnidgitId = comment.subnigdit;
+                    subnidgitId = comment.post.subnigdit.id;
                     await strapi
                         .service("api::comment.comment")
                         .removeCommentValues(comment);
                     break;
                 case "reply":
                     const reply = await strapi.entityService.findOne("api::reply.reply", report.contentId, {
-                        populate: "*",
+                        populate: {
+                            comment: {
+                                fields: ["id"],
+                                populate: {
+                                    post: {
+                                        fields: ["id"],
+                                        populate: {
+                                            subnigdit: {
+                                                fields: ["id"],
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     });
                     if (!reply)
                         return ctx.send("Reply not found", 404);
-                    subnidgitId = reply.subnigdit;
+                    subnidgitId = reply.comment.post.subnigdit.id;
                     await strapi.service("api::reply.reply").removeReplyValues(reply);
                     break;
                 case "post":
@@ -135,7 +158,7 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                     });
                     if (!post)
                         return ctx.send("Post not found", 404);
-                    subnidgitId = post.subnigdit;
+                    subnidgitId = post.subnigdit.id;
                     await strapi.service("api::post.post").removePostValues(post);
                     break;
                 default:
@@ -145,10 +168,11 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
             const reportedUser = await strapi.entityService.findOne("plugin::users-permissions.user", report.contentOwner.id, {
                 populate: "*",
             });
-            if (!reportedUser.bans.includes(subnidgitId.id)) {
+            const bans = reportedUser.bans;
+            if (!bans.includes(subnidgitId)) {
                 await strapi.entityService.update("plugin::users-permissions.user", report.contentOwner.id, {
                     data: {
-                        bans: [...reportedUser.bans, subnidgitId.id],
+                        bans: [...bans, subnidgitId],
                     },
                 });
             }

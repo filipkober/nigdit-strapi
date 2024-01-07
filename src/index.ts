@@ -1,4 +1,3 @@
-import { Lifecycles, Strapi } from '@strapi/strapi';
 'use strict';
 
 module.exports = {

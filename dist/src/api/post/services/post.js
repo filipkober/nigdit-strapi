@@ -21,8 +21,6 @@ module.exports = createCoreService('api::post.post', ({ strapi }) => ({
                 title: "[removed]",
                 description: "[removed]",
                 type: "Text",
-                // ! TUDU:fiks diz szit
-                reports: -1
             }
         });
         return removed;

@@ -17,15 +17,14 @@ const feedQuery = {
         subnigdit: {
             fields: ["name", "description", "name_uid"],
             populate: {
+                // @ts-ignore
                 subscribers: { count: true },
                 icon: {
                     populate: "*",
                 },
             },
         },
-        comments: {
-            fields: [],
-        },
+        comments: true,
     },
 };
 module.exports = createCoreController("api::post.post", ({ strapi }) => {
@@ -45,8 +44,6 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
                     title: "[removed]",
                     description: "[removed]",
                     type: "Text",
-                    // ! TUDU:fiks diz szit
-                    reports: -1,
                 },
             });
             ctx.send(newPost, 200);
@@ -309,6 +306,7 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
                 const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map((group) => group.id);
                 const posts = await strapi.entityService.findMany("api::post.post", {
+                    // @ts-ignore
                     filters: { subnigdit: userSubnigditsIds },
                     ...feedQuery,
                 });
@@ -340,12 +338,13 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
                 const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map((group) => group.id);
                 const posts = await strapi.entityService.findMany("api::post.post", {
+                    // @ts-ignore
                     filters: { subnigdit: userSubnigditsIds },
                     ...feedQuery,
                 });
                 const start = ctx.query.start;
                 const limit = ctx.query.limit;
-                posts.sort((a, b) => a.createdAt - b.createdAt);
+                posts.sort((a, b) => Number(a.createdAt) - Number(b.createdAt));
                 posts.reverse();
                 ctx.send({ data: posts.slice(start, start + limit) }, 200);
             }
@@ -359,6 +358,7 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
                 const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map((group) => group.id);
                 const posts = await strapi.entityService.findMany("api::post.post", {
+                    // @ts-ignore
                     filters: { subnigdit: userSubnigditsIds },
                     ...feedQuery,
                 });
@@ -380,7 +380,9 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
                     return {
                         idPostu: post.id,
                         pozycja: i,
-                        popularity: post.comments.length * 3 +
+                        popularity: 
+                        // @ts-ignore
+                        post.comments.length * 3 +
                             parseInt(post.votes) +
                             differenceInDays,
                     };
@@ -547,7 +549,8 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
                     populate: "*",
                 });
             }
-            const sanitizedEntity = await utils_1.sanitize.contentAPI.output(post);
+            const schema = strapi.getModel("api::post.post");
+            const sanitizedEntity = await utils_1.sanitize.contentAPI.output(post, schema);
             delete sanitizedEntity.owner.password;
             delete sanitizedEntity.owner.email;
             delete sanitizedEntity.owner.resetPasswordToken;
