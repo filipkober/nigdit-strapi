@@ -4,11 +4,11 @@
  * post controller
  */
 
+import { Strapi } from "@strapi/types";
+import { Params } from "@strapi/types/dist/modules/entity-service";
+import { WildcardNotation } from "@strapi/types/dist/modules/entity-service/params/fields";
 import { sanitize } from "@strapi/utils";
 const { createCoreController } = require("@strapi/strapi").factories;
-import { Strapi } from "@strapi/types";
-import { WildcardNotation } from "@strapi/types/dist/modules/entity-service/params/fields";
-import { Params } from "@strapi/types/dist/modules/entity-service";
 
 const feedQuery: Params.Pick<"api::post.post", 'fields' | 'filters' | '_q' | 'pagination:offset' | 'sort' | 'populate' | 'publicationState' | 'plugin' > = {
   fields: "*" as WildcardNotation,
@@ -40,7 +40,7 @@ module.exports = createCoreController("api::post.post", ({ strapi }: {strapi: St
         "api::post.post",
         ctx.params.id,
         {
-          populate: "*", //<= wszystko lub nazwy relacji w arrayu
+          populate: "*",
         }
       );
 
@@ -145,35 +145,6 @@ module.exports = createCoreController("api::post.post", ({ strapi }: {strapi: St
       );
       ctx.send(updatedUser.votes, 200);
     },
-
-    // Simple versions of algorithms with support for subnigdit page
-    // async getPop(ctx) {
-    //   try {
-    //     const posts = await strapi.entityService.findMany(
-    //       "api::post.post",
-    //       feedQuery
-    //     );
-    //     const start = ctx.query.start;
-    //     const limit = ctx.query.limit;
-    //     var i = -1;
-    //     const samples = posts.map((post) => {
-    //       i += 1;
-    //       return {
-    //         idPostu: post.id,
-    //         pozycja: i,
-    //         popularity: post.comments.length * 3 + parseInt(post.votes), //tu powinna być suma dv + uv
-    //       };
-    //     });
-    //     samples.sort((a, b) => a.popularity - b.popularity);
-    //     samples.reverse();
-    //     const sorted = samples.map((sample) => {
-    //       return posts[sample.pozycja];
-    //     });
-    //     ctx.send({ data: sorted.slice(start, start + limit) }, 200);
-    //   } catch (err) {
-    //     ctx.body = err;
-    //   }
-    // },
     async getTop(ctx) {
       try {
         const subnigditFeedId = ctx.query.subnigdit;
@@ -291,61 +262,6 @@ module.exports = createCoreController("api::post.post", ({ strapi }: {strapi: St
         ctx.body = err;
       }
     },
-    //subscribed only variation
-
-    // async getPopSub(ctx) {
-    //   try {
-    //     const userId = ctx.state.user.id; //coś nie wykrywa usera
-    //     const subnigditFeedId = ctx.query.subnigdit;
-    //     let userSubnigdits = null;
-    //     if(subnigditFeedId == null)
-    //     {
-    //       userSubnigdits = await strapi.entityService.findMany(
-    //         "api::subnigdit.subnigdit",
-    //         { filters: { subscribers: userId }, populate: "*" }
-    //       );
-    //     }
-    //     else
-    //     {
-    //       userSubnigdits = []
-    //       let temp = await strapi.entityService.findOne(
-    //         "api::subnigdit.subnigdit",
-    //         subnigditFeedId,
-    //         { populate: "*" }
-    //       );
-    //       userSubnigdits.push(temp)
-    //     }
-    //     const userSubnigditsIds = userSubnigdits.map((group) => group.id);
-    //     const posts = await strapi.entityService.findMany("api::post.post", {
-    //       filters: { subnigdit: userSubnigditsIds },
-    //       ...feedQuery,
-    //     });
-    //     const start = ctx.query.start;
-    //     const limit = ctx.query.limit;
-    //     const postsIds = posts.map((group) => group.title);
-    //     console.log("Posty z subskrybowanych subnigditów:");
-    //     console.log(userSubnigditsIds);
-    //     console.log(postsIds);
-
-    //     var i = -1;
-    //     const samples = posts.map((post) => {
-    //       i += 1;
-    //       return {
-    //         idPostu: post.id,
-    //         pozycja: i,
-    //         popularity: post.comments.length * 3 + parseInt(post.votes), //tu powinna być suma dv + uv
-    //       };
-    //     });
-    //     samples.sort((a, b) => a.popularity - b.popularity);
-    //     samples.reverse();
-    //     const sorted = samples.map((sample) => {
-    //       return { data: [posts[sample.pozycja]] };
-    //     });
-    //     ctx.send({ data: sorted.slice(start, start + limit) }, 200);
-    //   } catch (err) {
-    //     ctx.send("Kys: " + err, 200);
-    //   }
-    // },
     async getTopSubscribed(ctx) {
       try {
         const userId = ctx.state.user.id;
@@ -450,7 +366,6 @@ module.exports = createCoreController("api::post.post", ({ strapi }: {strapi: St
         ctx.body = err;
       }
     },
-    //my posts variation
     async getHotMyPosts(ctx) {
       try {
         const userId = ctx.state.user.id;
