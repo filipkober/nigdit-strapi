@@ -25,4 +25,4 @@ jobs:
         script: |
           cd ~/nigdit-strapi
           git pull origin master
-          pm2 restart "nigdit-strapi"
+          pm2 restart "nigdit strapi"
