@@ -14,7 +14,7 @@ module.exports = createCoreController('api::subnigdit.subnigdit', ({strapi})=>{
             const user = ctx.state.user
             const idSubnigdita = ctx.params.id
             const subnigdit = await strapi.entityService.findOne("api::subnigdit.subnigdit", idSubnigdita,{populate: "*"});
-            if(!subnigdit) 
+            if(!subnigdit)
             {
                 return ctx.send("Subnigdit id not found", 404)
             }
@@ -28,10 +28,10 @@ module.exports = createCoreController('api::subnigdit.subnigdit', ({strapi})=>{
                 joined = false
             }
             else
-            {        
+            {
                 subs.push(user)
                 joined = true
-            }             
+            }
             const updatedSubnigdit = await strapi.entityService.update("api::subnigdit.subnigdit", idSubnigdita, {
                 data: {
                     subscribers: subs
@@ -45,7 +45,7 @@ module.exports = createCoreController('api::subnigdit.subnigdit', ({strapi})=>{
             const user = ctx.state.user
             const idSubnigdita = ctx.params.id
             const subnigdit = await strapi.entityService.findOne("api::subnigdit.subnigdit", idSubnigdita,{populate: "*"});
-            if(!subnigdit) 
+            if(!subnigdit)
             {
                 return ctx.send("Subnigdit id not found", 404)
             }
@@ -58,7 +58,7 @@ module.exports = createCoreController('api::subnigdit.subnigdit', ({strapi})=>{
                 joined = true
             }
             else
-            {        
+            {
                 joined = false
             }
             ctx.send(joined, 200)

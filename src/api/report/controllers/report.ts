@@ -297,7 +297,8 @@ module.exports = createCoreController(
           delete report.createdBy;
           return report;
         });
-        return await sanitize.contentAPI.output(reports);
+        const model = strapi.getModel("api::report.report");
+        return await sanitize.contentAPI.output(reports, model);
       },
       async findToNigdit(ctx) {
         const { page, type } = ctx.request.query;
@@ -327,7 +328,8 @@ module.exports = createCoreController(
           delete report.createdBy;
           return report;
         });
-        return await sanitize.contentAPI.output(reports);
+        const model = strapi.getModel("api::report.report");
+        return await sanitize.contentAPI.output(reports, model);
       },
       async deleteWithContent(ctx) {
         const id = ctx.params.id;

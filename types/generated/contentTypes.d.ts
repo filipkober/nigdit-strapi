@@ -733,7 +733,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       }>;
     email: Attribute.Email &
       Attribute.Required &
-      Attribute.Private &
       Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;

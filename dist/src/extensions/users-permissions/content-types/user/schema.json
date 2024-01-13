@@ -24,8 +24,7 @@
             "type": "email",
             "minLength": 6,
             "configurable": false,
-            "required": true,
-            "private": true
+            "required": true
         },
         "provider": {
             "type": "string",

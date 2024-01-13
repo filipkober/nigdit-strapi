@@ -2,7 +2,7 @@
 
 module.exports = {
   findSubnigdits: async (ctx, next) =>{
-    const key = ctx.query.search;    
+    const key = ctx.query.search;
     if(!key)
       return ctx.send("brak search value",400)
     const subnigdits = await strapi.db.query('api::subnigdit.subnigdit').findMany({
@@ -10,7 +10,7 @@ module.exports = {
         name: {
           $containsi: key
         },
-      },      
+      },
       limit: 6,
       populate: {
         icon: true,

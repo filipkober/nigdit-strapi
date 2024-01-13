@@ -1,17 +1,9 @@
 module.exports = {
     routes: [
-        // {
-        //     method: 'GET',          //GET | POST | DELETE | PUT
-        //     path: '/posts/pop',           //http://localhost:1338/api/posts/pop
-        //     handler: 'post.getPop', //kontroler.metoda
-        //     config: {
-        //         auth: false
-        //     }
-        // },
         {
             method: 'GET',
-            path: '/posts/top',
-            handler: 'post.getTop',
+            path: '/posts/top', //localhost:1338/api/posts/pop
+            handler: 'post.getTop', //controller.method
             config: {
                 auth: false
             }
@@ -62,10 +54,5 @@ module.exports = {
             path: '/posts/hotMy',
             handler: 'post.getHotMyPosts',
         },
-        // {
-        //     method: 'GET',
-        //     path: '/posts/popSub',
-        //     handler: 'post.getPopSub',
-        // }
     ]
 }
