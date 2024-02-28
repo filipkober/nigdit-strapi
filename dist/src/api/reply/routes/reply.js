@@ -7,6 +7,9 @@ module.exports = createCoreRouter('api::reply.reply', {
     config: {
         create: {
             policies: ['global::not-banned']
+        },
+        delete: {
+            policies: ['global::is-reply-creator']
         }
     }
 });

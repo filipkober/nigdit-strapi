@@ -1,8 +1,6 @@
 'use strict';
-/**
- * comment controller
- */
-const { createCoreController } = require('@strapi/strapi').factories;
+Object.defineProperty(exports, "__esModule", { value: true });
+const { createCoreController } = require("@strapi/strapi").factories;
 module.exports = createCoreController('api::comment.comment', ({ strapi }) => {
     return {
         async upVote(ctx) {
@@ -79,6 +77,34 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => {
             ctx.request.body.data.votes = 0;
             let { data, meta } = await super.create(ctx);
             ctx.send({ data, meta });
-        }
+        },
+        async banAuthor(ctx) {
+            const { user } = ctx.state;
+            const { id } = ctx.params;
+            const comment = await strapi.entityService.findOne("api::reply.reply", id, { populate: '*' });
+            if (!comment)
+                return ctx.send("Reply not found", 404);
+            const author = comment.owner;
+            const authorId = author.id;
+            const clonedBans = JSON.parse(JSON.stringify(user.bans));
+            if (!clonedBans.includes(authorId)) {
+                clonedBans.push(authorId);
+            }
+            const updatedUser = await strapi.entityService.update("plugin::users-permissions.user", user.id, {
+                data: {
+                    bans: clonedBans,
+                },
+            });
+            const removedComment = await strapi.service("api::comment.comment").removeCommentValues(comment);
+            ctx.send(removedComment, 200);
+        },
+        async delete(ctx) {
+            const { id } = ctx.params;
+            const comment = await strapi.entityService.findOne("api::comment.comment", id, { populate: "*" });
+            if (!comment)
+                return ctx.send("Comment not found", 404);
+            const removedComment = await strapi.service("api::comment.comment").removeCommentValues(comment);
+            ctx.send(removedComment, 200);
+        },
     };
 });
