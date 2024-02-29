@@ -1,7 +1,7 @@
 # nigdit strapi
 
 this is the backend for the nigdit project,
-frontend can be found [here](https://github.com/filipkober/nigdit-strapi)
+frontend can be found [here](https://github.com/filipkober/nigdit-dashboard)
 
 ## relevant docs
 
