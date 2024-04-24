@@ -14,6 +14,10 @@ module.exports = createCoreService('api::post.post', ({ strapi } : { strapi: Str
         if(postId) id = postId;
         else id = post.id;
 
+        if(!post) post = await strapi.entityService.findOne("api::post.post", id, {
+            populate: ["media"]
+        });
+
         const mediaId = post.media?.id
         if(mediaId)
         {
