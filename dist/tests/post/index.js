@@ -7,6 +7,4 @@ const globals_1 = require("@jest/globals");
         post: ["delete"],
     });
 });
-describe("Post", () => {
-    require("./delete");
-});
+require("./delete");

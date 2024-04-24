@@ -8,6 +8,5 @@ beforeAll(async () => {
     });
 })
 
-describe("Post", () => {
-    require("./delete")
-});
+
+import "./delete";
