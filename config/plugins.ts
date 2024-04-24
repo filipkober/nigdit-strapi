@@ -3,7 +3,7 @@ module.exports = ({ env }) => ({
       config: {
         provider: 'sendgrid',
         providerOptions: {
-          apiKey: env("SENDGRID_API_KEY", "nokey"),
+          apiKey: env("SENDGRID_API_KEY", "SG.nokey"),
         },
         settings: {
           defaultFrom: 'noreply@nigdit.men',

@@ -1,3 +1,5 @@
+import * as crypto from 'crypto';
+
 module.exports = ({ env }) => ({
   auth: {
     secret: env('ADMIN_JWT_SECRET'),
@@ -5,4 +7,7 @@ module.exports = ({ env }) => ({
   apiToken: {
     salt: env('API_TOKEN_SALT'),
   },
+  transferToken: {
+    salt: crypto.randomBytes(16).toString('base64')
+  }
 });

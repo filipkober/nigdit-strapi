@@ -1,12 +1,12 @@
-const Strapi = require("@strapi/strapi");
-const fs = require("fs");
-const _ = require("lodash");
+import Strapi from "@strapi/strapi";
+import fs from "fs";
+import _ from "lodash";
 
 let instance;
 
-async function setupStrapi() {
+export async function setupStrapi() {
   if (!instance) {
-    await Strapi().load();
+    await Strapi.compile().then((appContext) => Strapi(appContext).load());
     instance = strapi;
 
     await instance.server.mount();
@@ -14,8 +14,8 @@ async function setupStrapi() {
   return instance;
 }
 
-async function cleanupStrapi() {
-  const dbSettings = strapi.config.get("database.connection");
+export async function cleanupStrapi() {
+  const dbSettings = strapi.config.get("database.connection") as any;
 
   //close server to release the db-file
   await strapi.server.httpServer.close();
@@ -31,7 +31,7 @@ async function cleanupStrapi() {
     }
   }
 }
-async function setPermissions(newPermissions, auth = true) {
+export async function setPermissions(newPermissions, auth = true) {
   // Find the ID of the public role
   const publicRole = await strapi
     .query("plugin::users-permissions.role")
@@ -57,5 +57,3 @@ async function setPermissions(newPermissions, auth = true) {
   });
   await Promise.all(allPermissionsToCreate);
 }
-
-module.exports = { setupStrapi, cleanupStrapi, setPermissions };

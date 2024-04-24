@@ -1,15 +1,21 @@
-const Strapi = require("@strapi/strapi");
-const fs = require("fs");
-const _ = require("lodash");
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.setPermissions = exports.cleanupStrapi = exports.setupStrapi = void 0;
+const strapi_1 = __importDefault(require("@strapi/strapi"));
+const fs_1 = __importDefault(require("fs"));
 let instance;
 async function setupStrapi() {
     if (!instance) {
-        await Strapi().load();
+        await strapi_1.default.compile().then((appContext) => (0, strapi_1.default)(appContext).load());
         instance = strapi;
         await instance.server.mount();
     }
     return instance;
 }
+exports.setupStrapi = setupStrapi;
 async function cleanupStrapi() {
     const dbSettings = strapi.config.get("database.connection");
     //close server to release the db-file
@@ -19,11 +25,12 @@ async function cleanupStrapi() {
     //delete test database after all tests have completed
     if (dbSettings && dbSettings.connection && dbSettings.connection.filename) {
         const tmpDbFile = dbSettings.connection.filename;
-        if (fs.existsSync(tmpDbFile)) {
-            fs.unlinkSync(tmpDbFile);
+        if (fs_1.default.existsSync(tmpDbFile)) {
+            fs_1.default.unlinkSync(tmpDbFile);
         }
     }
 }
+exports.cleanupStrapi = cleanupStrapi;
 async function setPermissions(newPermissions, auth = true) {
     // Find the ID of the public role
     const publicRole = await strapi
@@ -49,4 +56,4 @@ async function setPermissions(newPermissions, auth = true) {
     });
     await Promise.all(allPermissionsToCreate);
 }
-module.exports = { setupStrapi, cleanupStrapi, setPermissions };
+exports.setPermissions = setPermissions;
