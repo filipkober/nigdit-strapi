@@ -12,3 +12,7 @@ This project uses [Jest](https://jestjs.io/) and [Supertest](https://www.npmjs.c
 ## helper functions
 
 - the most important helper function is `setPermissions`, which sets the permissions for the endpoints
+
+## getting started
+
+- take a look at `tests/post/delete.ts` to get a reference on how this project is tested
