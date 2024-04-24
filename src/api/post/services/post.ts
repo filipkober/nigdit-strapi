@@ -14,7 +14,7 @@ module.exports = createCoreService('api::post.post', ({ strapi } : { strapi: Str
         if(postId) id = postId;
         else id = post.id;
 
-        const mediaId = post.Media?.id
+        const mediaId = post.media?.id
         if(mediaId)
         {
         const file = await strapi.plugins.upload.services.upload.findOne(mediaId)
