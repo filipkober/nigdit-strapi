@@ -10,5 +10,5 @@ beforeAll(async () => {
 
 
 describe("Post", () => {
-    require("./post")
+    require("./delete")
 })
