@@ -9,8 +9,10 @@ afterAll(async () => {
   await cleanupStrapi();
 });
 
-it("strapi is defined", () => {
-  expect(strapi).toBeDefined();
+describe("Strapi setup", () => {
+  it("strapi is defined", () => {
+    expect(strapi).toBeDefined();
+  });
 });
 
 require("./post")
