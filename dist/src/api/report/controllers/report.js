@@ -9,19 +9,31 @@ const { createCoreController } = require("@strapi/strapi").factories;
 module.exports = createCoreController("api::report.report", ({ strapi }) => {
     return {
         async create(ctx) {
-            const { type, reason, contentId, toSubnigdit, subnigditId } = ctx.request.body;
+            const { type, reason, contentId, toSubnigdit } = ctx.request.body;
             const user = ctx.state.user;
             if (!user)
                 return ctx.send({ message: "Unauthorized" }, 401);
-            if (!type || !reason || !contentId || toSubnigdit === undefined || (toSubnigdit && !subnigditId))
+            if (!type || !reason || !contentId || toSubnigdit === undefined)
                 return ctx.send({ message: "Missing fields" }, 400);
             let content;
             let owner;
             let media = undefined;
             const lowerCaseType = type.toLowerCase();
+            let subnigditId;
+            if (toSubnigdit) {
+                const mockReport = {
+                    type,
+                    contentId
+                };
+                subnigditId = await strapi
+                    .service("api::report.report")
+                    .getSubnigditId(mockReport);
+            }
+            if (!subnigditId)
+                return ctx.send({ message: "Subnigdit not found" }, 404);
             switch (lowerCaseType) {
                 case "comment":
-                    const reportComment = await strapi.entityService.findOne("api::report.report", contentId, {
+                    const reportComment = await strapi.entityService.findMany("api::report.report", {
                         filters: {
                             reporter: user === null || user === void 0 ? void 0 : user.id,
                             contentId,
@@ -29,7 +41,7 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                         },
                         populate: "*",
                     });
-                    if (reportComment)
+                    if (reportComment.length > 0)
                         return ctx.send({ message: "You have already reported this comment" }, 400);
                     const comment = await strapi.entityService.findOne("api::comment.comment", contentId, {
                         populate: "*",
@@ -40,7 +52,7 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                     owner = comment.owner.id;
                     break;
                 case "reply":
-                    const reportReply = await strapi.entityService.findOne("api::report.report", contentId, {
+                    const reportReply = await strapi.entityService.findMany("api::report.report", {
                         filters: {
                             reporter: user === null || user === void 0 ? void 0 : user.id,
                             contentId,
@@ -48,7 +60,7 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                         },
                         populate: "*",
                     });
-                    if (reportReply)
+                    if (reportReply.length > 0)
                         return ctx.send({ message: "You have already reported this reply" }, 400);
                     const reply = await strapi.entityService.findOne("api::reply.reply", contentId, {
                         populate: "*",
@@ -59,7 +71,7 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                     owner = reply.owner.id;
                     break;
                 case "post":
-                    const reportPost = await strapi.entityService.findOne("api::report.report", contentId, {
+                    const reportPost = await strapi.entityService.findMany("api::report.report", {
                         filters: {
                             reporter: user === null || user === void 0 ? void 0 : user.id,
                             contentId,
@@ -67,7 +79,7 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                         },
                         populate: "*",
                     });
-                    if (reportPost)
+                    if (reportPost.length > 0)
                         return ctx.send({ message: "You have already reported this post" }, 400);
                     const post = await strapi.entityService.findOne("api::post.post", contentId, {
                         populate: "*",
@@ -98,7 +110,8 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                 },
                 populate: "*",
             });
-            ctx.send(report, 200);
+            const sanitized = await sanitize.contentAPI.output(report, strapi.getModel("api::report.report"));
+            ctx.send(sanitized, 200);
         },
         async banMemberFromSubnigdit(ctx) {
             const id = ctx.params.id;
@@ -227,17 +240,16 @@ module.exports = createCoreController("api::report.report", ({ strapi }) => {
                         {
                             type: type,
                         },
+                        {
+                            toSubnigdit: true,
+                        }
                     ],
                 },
                 populate: "*",
                 limit: limit,
                 start: startPage,
             });
-            reports = reports.map((report) => {
-                delete report.updatedBy;
-                delete report.createdBy;
-                return report;
-            });
+            reports = await sanitize.contentAPI.output(reports, strapi.getModel("api::report.report"));
             const model = strapi.getModel("api::report.report");
             return await sanitize.contentAPI.output(reports, model);
         },
