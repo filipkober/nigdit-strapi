@@ -12,7 +12,22 @@ describe("Report", () => {
     describe("Create", () => {
         require("./post")
     })
-    describe("Delete with content", () => {
-        require("./deleteWithContent")
+    
+    describe("Delete", () => {
+        describe("with content", () => {
+            require("./deleteWithContent")
+        })
+        describe("just the report", () => {
+            require("./delete")
+        })
+    })
+
+    describe("Find", () => {
+        describe("to nigdit", () => {
+            require("./findToNigdit")
+        })
+        describe("to subnigdit", () => {
+            require("./find")
+        })
     })
 })

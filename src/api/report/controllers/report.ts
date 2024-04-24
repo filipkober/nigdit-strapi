@@ -297,6 +297,9 @@ module.exports = createCoreController(
                 {
                   type: type,
                 },
+                {
+                  toSubnigdit: true,
+                }
               ],
             },
             populate: "*",
@@ -304,11 +307,7 @@ module.exports = createCoreController(
             start: startPage,
           }
         );
-        reports = reports.map((report) => {
-          delete report.updatedBy;
-          delete report.createdBy;
-          return report;
-        });
+        reports = await sanitize.contentAPI.output(reports, strapi.getModel("api::report.report"));
         const model = strapi.getModel("api::report.report");
         return await sanitize.contentAPI.output(reports, model);
       },
