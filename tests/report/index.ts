@@ -9,5 +9,10 @@ beforeAll(async () => {
 })
 
 describe("Report", () => {
-    require("./post")
+    describe("Create", () => {
+        require("./post")
+    })
+    describe("Delete with content", () => {
+        require("./deleteWithContent")
+    })
 })

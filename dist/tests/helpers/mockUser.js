@@ -20,11 +20,12 @@ const randomUser = () => ({
     provider: "local",
 });
 exports.randomUser = randomUser;
-const makeUser = async () => {
+const makeUser = async (admin = false) => {
     const defaultRole = await strapi.query('plugin::users-permissions.role').findOne({});
     const role = defaultRole ? defaultRole.id : null;
     const user = await strapi.plugins['users-permissions'].services.user.add({
         ...(0, exports.randomUser)(),
+        admin,
         role,
     });
     return user;

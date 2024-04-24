@@ -11,7 +11,11 @@ module.exports = createCoreService('api::post.post', ({ strapi }) => ({
             id = postId;
         else
             id = post.id;
-        const mediaId = (_a = post.Media) === null || _a === void 0 ? void 0 : _a.id;
+        if (!post)
+            post = await strapi.entityService.findOne("api::post.post", id, {
+                populate: ["media"]
+            });
+        const mediaId = (_a = post.media) === null || _a === void 0 ? void 0 : _a.id;
         if (mediaId) {
             const file = await strapi.plugins.upload.services.upload.findOne(mediaId);
             await strapi.plugins.upload.services.upload.remove(file);

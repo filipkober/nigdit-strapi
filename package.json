@@ -25,6 +25,7 @@
     "@strapi/provider-email-sendgrid": "4.24.0",
     "@strapi/strapi": "4.24.0",
     "@strapi/typescript-utils": "^4.24.0",
+    "@types/supertest": "^6.0.2",
     "better-sqlite3": "^9.5.0",
     "pg": "8.10.0",
     "react": "^18.0.0",
