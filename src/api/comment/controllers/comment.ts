@@ -1,5 +1,7 @@
 'use strict';
 
+import { Strapi } from "@strapi/types";
+
 /**
  * comment controller
  */
@@ -8,7 +10,7 @@ export {};
 
 const { createCoreController } = require("@strapi/strapi").factories;
 
-module.exports = createCoreController('api::comment.comment', ({strapi})=>{
+module.exports = createCoreController('api::comment.comment', ({strapi}: {strapi: Strapi})=>{
     return {
     async upVote(ctx){
         const user = ctx.state.user
@@ -91,20 +93,27 @@ module.exports = createCoreController('api::comment.comment', ({strapi})=>{
         const { id } = ctx.params;
   
         const comment = await strapi.entityService.findOne(
-          "api::reply.reply",
+          "api::comment.comment",
           id,
-          {populate: '*'}
+          {populate: {
+            owner: true,
+            post: {
+                populate: {
+                    subnigdit: true
+                }
+            }
+          }}
         );
-        if (!comment) return ctx.send("Reply not found", 404);
+        if (!comment) return ctx.send("Comment not found", 404);
         const author = comment.owner;
-        const authorId = author.id;
-        const clonedBans = JSON.parse(JSON.stringify(user.bans));
-        if (!clonedBans.includes(authorId)) {
-          clonedBans.push(authorId);
+        const subnigdit = comment.post.subnigdit;
+        const clonedBans = JSON.parse(JSON.stringify(author.bans));
+        if (!clonedBans.includes(subnigdit.id)) {
+          clonedBans.push(subnigdit.id);
         }
         const updatedUser = await strapi.entityService.update(
           "plugin::users-permissions.user",
-          user.id,
+          author.id,
           {
             data: {
               bans: clonedBans,

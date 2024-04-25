@@ -81,16 +81,23 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => {
         async banAuthor(ctx) {
             const { user } = ctx.state;
             const { id } = ctx.params;
-            const comment = await strapi.entityService.findOne("api::reply.reply", id, { populate: '*' });
+            const comment = await strapi.entityService.findOne("api::comment.comment", id, { populate: {
+                    owner: true,
+                    post: {
+                        populate: {
+                            subnigdit: true
+                        }
+                    }
+                } });
             if (!comment)
-                return ctx.send("Reply not found", 404);
+                return ctx.send("Comment not found", 404);
             const author = comment.owner;
-            const authorId = author.id;
-            const clonedBans = JSON.parse(JSON.stringify(user.bans));
-            if (!clonedBans.includes(authorId)) {
-                clonedBans.push(authorId);
+            const subnigdit = comment.post.subnigdit;
+            const clonedBans = JSON.parse(JSON.stringify(author.bans));
+            if (!clonedBans.includes(subnigdit.id)) {
+                clonedBans.push(subnigdit.id);
             }
-            const updatedUser = await strapi.entityService.update("plugin::users-permissions.user", user.id, {
+            const updatedUser = await strapi.entityService.update("plugin::users-permissions.user", author.id, {
                 data: {
                     bans: clonedBans,
                 },
