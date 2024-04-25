@@ -4,7 +4,7 @@ import { beforeAll } from "@jest/globals";
 
 beforeAll(async () => {
     await setPermissions({
-        report: ["banMemberFromSubnigdit", "banMemberFromNigdit", "findToNigdit", "deleteWithContent", "delete", "find", "create"],
+        report: ["banMemberFromSubnigdit", "banMemberFromNigdit", "findToNigdit", "deleteWithContent", "delete", "find", "create", "banMemberFromSubnigdit", "banMemberFromNigdit"],
     });
 })
 
@@ -29,5 +29,9 @@ describe("Report", () => {
         describe("to subnigdit", () => {
             require("./find")
         })
+    })
+
+    describe("Ban", () => {
+        require("./ban")
     })
 })

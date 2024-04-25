@@ -482,12 +482,11 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
             if (!post)
                 return ctx.send("Post not found", 404);
             const author = post.owner;
-            const authorId = author.id;
-            const clonedBans = JSON.parse(JSON.stringify(user.bans));
-            if (!clonedBans.includes(authorId)) {
-                clonedBans.push(authorId);
+            const clonedBans = JSON.parse(JSON.stringify(author.bans));
+            if (!clonedBans.includes(post.subnigdit.id)) {
+                clonedBans.push(post.subnigdit.id);
             }
-            const updatedUser = await strapi.entityService.update("plugin::users-permissions.user", user.id, {
+            const updatedUser = await strapi.entityService.update("plugin::users-permissions.user", author.id, {
                 data: {
                     bans: clonedBans,
                 },

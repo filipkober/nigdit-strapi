@@ -7,6 +7,8 @@ const utils = require("@strapi/utils");
 const { PolicyError } = utils.errors;
 exports.default = async (policyContext, config, { strapi }) => {
     const user = policyContext.state.user;
+    if (user.admin)
+        return true;
     const reportId = policyContext.params.id;
     const report = await strapi.entityService.findOne("api::report.report", reportId, {
         populate: "*",

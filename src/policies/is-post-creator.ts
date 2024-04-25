@@ -1,4 +1,4 @@
-const utils =  require('@strapi/utils')
+import utils from '@strapi/utils';
 const {PolicyError} = utils.errors;
 
 module.exports = async(policyContext, config, { strapi }) => {

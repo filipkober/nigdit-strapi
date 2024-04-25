@@ -17,3 +17,5 @@ describe("Strapi setup", () => {
 
 require("./post")
 require("./report")
+require("./reply")
+require("./comment")

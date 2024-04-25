@@ -10,10 +10,11 @@ module.exports = createCoreService('api::reply.reply', ({ strapi }) => ({
             id = replyId;
         else
             id = reply.id;
-        await strapi.entityService.update("api::reply.reply", id, {
+        const removed = await strapi.entityService.update("api::reply.reply", id, {
             data: {
                 content: "[removed]",
             }
         });
+        return removed;
     },
 }));
