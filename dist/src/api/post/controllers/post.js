@@ -17,11 +17,12 @@ const feedQuery = {
                 // @ts-ignore
                 subscribers: { count: true },
                 icon: {
-                    populate: "*",
+                    fields: ["url"],
+                    populate: "url",
                 },
             },
         },
-        comments: true,
+        comments: { count: true },
     },
 };
 module.exports = createCoreController("api::post.post", ({ strapi }) => {
@@ -111,325 +112,145 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
             });
             ctx.send(updatedUser.votes, 200);
         },
-        async getTop(ctx) {
-            try {
-                const subnigditFeedId = ctx.query.subnigdit;
-                const start = ctx.query.start;
-                const limit = ctx.query.limit;
-                let posts = null;
-                if (subnigditFeedId == null) {
-                    posts = await strapi.entityService.findMany("api::post.post", feedQuery);
-                }
-                else {
-                    posts = await strapi.entityService.findMany("api::post.post", {
-                        filters: { subnigdit: subnigditFeedId },
-                        ...feedQuery,
-                    });
-                }
-                var i = -1;
-                const samples = posts.map((post) => {
-                    i += 1;
-                    return {
-                        idPostu: post.id,
-                        pozycja: i,
-                        popularity: parseInt(post.votes),
-                    };
-                });
-                samples.sort((a, b) => a.popularity - b.popularity);
-                samples.reverse();
-                const sorted = samples.map((sample) => {
-                    return posts[sample.pozycja];
-                });
-                ctx.send({ data: sorted.slice(start, start + limit) }, 200);
-            }
-            catch (err) {
-                ctx.body = err;
-            }
-        },
+        //FEED ALGORITHMS
         async getNew(ctx) {
-            try {
-                const subnigditFeedId = ctx.query.subnigdit;
-                const start = ctx.query.start;
-                const limit = ctx.query.limit;
-                let posts = null;
-                if (subnigditFeedId == null) {
-                    posts = await strapi.entityService.findMany("api::post.post", feedQuery);
-                }
-                else {
-                    posts = await strapi.entityService.findMany("api::post.post", {
-                        filters: { subnigdit: subnigditFeedId },
-                        ...feedQuery,
-                    });
-                }
-                posts.sort((a, b) => a.createdAt - b.createdAt);
-                posts.reverse();
-                ctx.send({ data: posts.slice(start, start + limit) }, 200);
+            let userId = null;
+            let posts = null;
+            let filters = {};
+            const subnigditFeedId = ctx.query.subnigdit;
+            const start = parseInt(ctx.query.start) || 0;
+            const limit = parseInt(ctx.query.limit) || 10;
+            const mode = parseInt(ctx.query.mode) || 0; //0-normal 1-subscribed 2-myposts
+            if (ctx.state.user) {
+                userId = ctx.state.user.id;
             }
-            catch (err) {
-                ctx.body = err;
+            console.log("start: " + start + " limit: " + limit + " mode: " + mode + " userId: " + userId);
+            if (subnigditFeedId && mode != 1) // specified subnigdit id or array of ids
+             {
+                filters = { ...filters, subnigdit: subnigditFeedId };
             }
+            if (mode == 1) //posts from subscribed subnigdits
+             {
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
+                const userSubnigditsIds = userSubnigdits.map((group) => group.id);
+                filters = { ...filters, subnigdit: userSubnigditsIds };
+            }
+            else if (mode == 2) //my posts
+             {
+                filters = { ...filters, owner: userId };
+            }
+            console.log(filters);
+            posts = await strapi.entityService.findMany("api::post.post", {
+                filters: filters,
+                ...feedQuery,
+            });
+            posts.sort((a, b) => b.createdAt - a.createdAt);
+            const startIndex = start < 0 ? 0 : start;
+            const endIndex = Math.min(startIndex + limit, posts.length);
+            const data = posts.slice(startIndex, endIndex);
+            ctx.send({ data: data }, 200);
+        },
+        async getTop(ctx) {
+            let userId = null;
+            let posts = null;
+            let filters = {};
+            const subnigditFeedId = ctx.query.subnigdit;
+            const start = parseInt(ctx.query.start) || 0;
+            const limit = parseInt(ctx.query.limit) || 10;
+            const mode = parseInt(ctx.query.mode) || 0;
+            if (ctx.state.user) {
+                userId = ctx.state.user.id;
+            }
+            console.log("start: " + start + " limit: " + limit + " mode: " + mode + " userId: " + userId);
+            if (subnigditFeedId && mode != 1) {
+                filters = { ...filters, subnigdit: subnigditFeedId };
+            }
+            if (mode == 1) {
+                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
+                const userSubnigditsIds = userSubnigdits.map((group) => group.id);
+                filters = { ...filters, subnigdit: userSubnigditsIds };
+            }
+            else if (mode == 2) {
+                filters = { ...filters, owner: userId };
+            }
+            console.log(filters);
+            posts = await strapi.entityService.findMany("api::post.post", {
+                filters: filters,
+                ...feedQuery,
+            });
+            var i = -1;
+            const samples = posts.map((post) => {
+                i += 1;
+                return {
+                    idPostu: post.id,
+                    pozycja: i,
+                    popularity: parseInt(post.votes),
+                };
+            });
+            samples.sort((a, b) => b.popularity - a.popularity);
+            const sorted = samples.map((sample) => {
+                return posts[sample.pozycja];
+            });
+            const startIndex = start < 0 ? 0 : start;
+            const endIndex = Math.min(startIndex + limit, sorted.length);
+            const data = sorted.slice(startIndex, endIndex);
+            ctx.send({ data: data }, 200);
         },
         async getHot(ctx) {
-            try {
-                const subnigditFeedId = ctx.query.subnigdit;
-                const start = ctx.query.start;
-                const limit = ctx.query.limit;
-                let posts = null;
-                if (subnigditFeedId == null) {
-                    posts = await strapi.entityService.findMany("api::post.post", feedQuery);
-                }
-                else {
-                    posts = await strapi.entityService.findMany("api::post.post", {
-                        filters: { subnigdit: subnigditFeedId },
-                        ...feedQuery,
-                    });
-                }
-                var i = -1;
-                const samples = posts.map((post) => {
-                    i += 1;
-                    var dataPosta = new Date(post.createdAt);
-                    var today = new Date();
-                    var differenceInMs = today.getTime() - dataPosta.getTime();
-                    var differenceInDays = differenceInMs / (1000 * 60 * 60 * 24);
-                    if (differenceInDays < 1) {
-                        differenceInDays = 4202137;
-                    }
-                    else {
-                        differenceInDays = 0;
-                    }
-                    return {
-                        idPostu: post.id,
-                        pozycja: i,
-                        popularity: post.comments.length * 3 +
-                            parseInt(post.votes) +
-                            differenceInDays,
-                    };
-                });
-                samples.sort((a, b) => a.popularity - b.popularity);
-                samples.reverse();
-                const sorted = samples.map((sample) => {
-                    return posts[sample.pozycja];
-                });
-                ctx.send({ data: sorted.slice(start, start + limit) }, 200);
+            let userId = null;
+            let posts = null;
+            let filters = {};
+            const subnigditFeedId = ctx.query.subnigdit;
+            const start = parseInt(ctx.query.start) || 0;
+            const limit = parseInt(ctx.query.limit) || 10;
+            const mode = parseInt(ctx.query.mode) || 0;
+            if (ctx.state.user) {
+                userId = ctx.state.user.id;
             }
-            catch (err) {
-                ctx.body = err;
+            console.log("start: " + start + " limit: " + limit + " mode: " + mode + " userId: " + userId);
+            if (subnigditFeedId && mode != 1) {
+                filters = { ...filters, subnigdit: subnigditFeedId };
             }
-        },
-        async getTopSubscribed(ctx) {
-            try {
-                const userId = ctx.state.user.id;
+            if (mode == 1) {
                 const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map((group) => group.id);
-                const posts = await strapi.entityService.findMany("api::post.post", {
-                    // @ts-ignore
-                    filters: { subnigdit: userSubnigditsIds },
-                    ...feedQuery,
-                });
-                const start = ctx.query.start;
-                const limit = ctx.query.limit;
-                var i = -1;
-                const samples = posts.map((post) => {
-                    i += 1;
-                    return {
-                        idPostu: post.id,
-                        pozycja: i,
-                        popularity: parseInt(post.votes),
-                    };
-                });
-                samples.sort((a, b) => a.popularity - b.popularity);
-                samples.reverse();
-                const sorted = samples.map((sample) => {
-                    return posts[sample.pozycja];
-                });
-                ctx.send({ data: sorted.slice(start, start + limit) }, 200);
+                filters = { ...filters, subnigdit: userSubnigditsIds };
             }
-            catch (err) {
-                ctx.body = err;
+            else if (mode == 2) {
+                filters = { ...filters, owner: userId };
             }
-        },
-        async getNewSubscribed(ctx) {
-            try {
-                const userId = ctx.state.user.id;
-                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
-                const userSubnigditsIds = userSubnigdits.map((group) => group.id);
-                const posts = await strapi.entityService.findMany("api::post.post", {
-                    // @ts-ignore
-                    filters: { subnigdit: userSubnigditsIds },
-                    ...feedQuery,
-                });
-                const start = ctx.query.start;
-                const limit = ctx.query.limit;
-                posts.sort((a, b) => Number(a.createdAt) - Number(b.createdAt));
-                posts.reverse();
-                ctx.send({ data: posts.slice(start, start + limit) }, 200);
-            }
-            catch (err) {
-                ctx.body = err;
-            }
-        },
-        async getHotSubscribed(ctx) {
-            try {
-                const userId = ctx.state.user.id;
-                const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
-                const userSubnigditsIds = userSubnigdits.map((group) => group.id);
-                const posts = await strapi.entityService.findMany("api::post.post", {
-                    // @ts-ignore
-                    filters: { subnigdit: userSubnigditsIds },
-                    ...feedQuery,
-                });
-                const start = ctx.query.start;
-                const limit = ctx.query.limit;
-                var i = -1;
-                const samples = posts.map((post) => {
-                    i += 1;
-                    var dataPosta = new Date(post.createdAt);
-                    var today = new Date();
-                    var differenceInMs = today.getTime() - dataPosta.getTime();
-                    var differenceInDays = differenceInMs / (1000 * 60 * 60 * 24);
-                    if (differenceInDays < 1) {
-                        differenceInDays = 4202137;
-                    }
-                    else {
-                        differenceInDays = 0;
-                    }
-                    return {
-                        idPostu: post.id,
-                        pozycja: i,
-                        popularity: 
-                        // @ts-ignore
-                        post.comments.length * 3 +
-                            parseInt(post.votes) +
-                            differenceInDays,
-                    };
-                });
-                samples.sort((a, b) => a.popularity - b.popularity);
-                samples.reverse();
-                const sorted = samples.map((sample) => {
-                    return posts[sample.pozycja];
-                });
-                ctx.send({ data: sorted.slice(start, start + limit) }, 200);
-            }
-            catch (err) {
-                ctx.body = err;
-            }
-        },
-        async getHotMyPosts(ctx) {
-            try {
-                const userId = ctx.state.user.id;
-                const subnigditFeedId = ctx.query.subnigdit;
-                const start = ctx.query.start;
-                const limit = ctx.query.limit;
-                let posts = null;
-                if (subnigditFeedId == null) {
-                    posts = await strapi.entityService.findMany("api::post.post", {
-                        filters: { owner: userId },
-                        ...feedQuery,
-                    });
+            console.log(filters);
+            posts = await strapi.entityService.findMany("api::post.post", {
+                filters: filters,
+                ...feedQuery,
+            });
+            var i = -1;
+            const samples = posts.map((post) => {
+                i += 1;
+                var dataPosta = new Date(post.createdAt);
+                var today = new Date();
+                var differenceInMs = today.getTime() - dataPosta.getTime();
+                var differenceInDays = differenceInMs / (1000 * 60 * 60 * 24);
+                if (differenceInDays < 0) {
+                    differenceInDays = 4202137;
                 }
-                else {
-                    posts = await strapi.entityService.findMany("api::post.post", {
-                        filters: { subnigdit: subnigditFeedId, owner: userId },
-                        ...feedQuery,
-                    });
-                }
-                var i = -1;
-                const samples = posts.map((post) => {
-                    i += 1;
-                    var dataPosta = new Date(post.createdAt);
-                    var today = new Date();
-                    var differenceInMs = today.getTime() - dataPosta.getTime();
-                    var differenceInDays = differenceInMs / (1000 * 60 * 60 * 24);
-                    if (differenceInDays < 1) {
-                        differenceInDays = 4202137;
-                    }
-                    else {
-                        differenceInDays = 0;
-                    }
-                    return {
-                        idPostu: post.id,
-                        pozycja: i,
-                        popularity: post.comments.length * 3 +
-                            parseInt(post.votes) +
-                            differenceInDays,
-                    };
-                });
-                samples.sort((a, b) => a.popularity - b.popularity);
-                samples.reverse();
-                const sorted = samples.map((sample) => {
-                    return posts[sample.pozycja];
-                });
-                ctx.send({ data: sorted.slice(start, start + limit) }, 200);
-            }
-            catch (err) {
-                ctx.body = err;
-            }
-        },
-        async getTopMyPosts(ctx) {
-            try {
-                const userId = ctx.state.user.id;
-                const subnigditFeedId = ctx.query.subnigdit;
-                const start = ctx.query.start;
-                const limit = ctx.query.limit;
-                let posts = null;
-                if (subnigditFeedId == null) {
-                    posts = await strapi.entityService.findMany("api::post.post", {
-                        filters: { owner: userId },
-                        ...feedQuery,
-                    });
-                }
-                else {
-                    posts = await strapi.entityService.findMany("api::post.post", {
-                        filters: { subnigdit: subnigditFeedId, owner: userId },
-                        ...feedQuery,
-                    });
-                }
-                var i = -1;
-                const samples = posts.map((post) => {
-                    i += 1;
-                    return {
-                        idPostu: post.id,
-                        pozycja: i,
-                        popularity: parseInt(post.votes),
-                    };
-                });
-                samples.sort((a, b) => a.popularity - b.popularity);
-                samples.reverse();
-                const sorted = samples.map((sample) => {
-                    return posts[sample.pozycja];
-                });
-                ctx.send({ data: sorted.slice(start, start + limit) }, 200);
-            }
-            catch (err) {
-                ctx.body = err;
-            }
-        },
-        async getNewMyPosts(ctx) {
-            try {
-                const userId = ctx.state.user.id;
-                const subnigditFeedId = ctx.query.subnigdit;
-                const start = ctx.query.start;
-                const limit = ctx.query.limit;
-                let posts = null;
-                if (subnigditFeedId == null) {
-                    posts = await strapi.entityService.findMany("api::post.post", {
-                        filters: { owner: userId },
-                        ...feedQuery,
-                    });
-                }
-                else {
-                    posts = await strapi.entityService.findMany("api::post.post", {
-                        filters: { subnigdit: subnigditFeedId, owner: userId },
-                        ...feedQuery,
-                    });
-                }
-                posts.sort((a, b) => a.createdAt - b.createdAt);
-                posts.reverse();
-                ctx.send({ data: posts.slice(start, start + limit) }, 200);
-            }
-            catch (err) {
-                ctx.body = err;
-            }
+                return {
+                    idPostu: post.id,
+                    pozycja: i,
+                    popularity: (post.comments.count * 3 + parseInt(post.votes)) * 2 / (differenceInDays + 1),
+                    votes: post.votes,
+                    dif: differenceInDays
+                };
+            });
+            samples.sort((a, b) => b.popularity - a.popularity);
+            const sorted = samples.map((sample) => {
+                // console.log("id: "+sample.idPostu+" pop: "+sample.popularity+" votes: "+sample.votes+" posted "+sample.dif+" days ago")
+                return posts[sample.pozycja];
+            });
+            const startIndex = start < 0 ? 0 : start;
+            const endIndex = Math.min(startIndex + limit, sorted.length);
+            const data = sorted.slice(startIndex, endIndex);
+            ctx.send({ data: data }, 200);
         },
         async create(ctx) {
             const { user } = ctx.state;

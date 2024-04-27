@@ -1,5 +1,5 @@
-import { setupStrapi, cleanupStrapi } from "./helpers/strapi";
-import { beforeAll, afterAll, it, expect } from "@jest/globals";
+import { afterAll, beforeAll, expect, it } from "@jest/globals";
+import { cleanupStrapi, setupStrapi } from "./helpers/strapi";
 
 beforeAll(async () => {
   await setupStrapi();
@@ -19,3 +19,4 @@ require("./post")
 require("./report")
 require("./reply")
 require("./comment")
+require("./feed")
