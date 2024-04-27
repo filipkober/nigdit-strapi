@@ -4,7 +4,8 @@ import { setPermissions } from "../helpers/strapi";
 
 beforeAll(async () => {
     await setPermissions({
-        post: ["getNew","getNewMyPosts","getNewSubscribed","getHot","getHotMyPosts","getHotSubscribed","getTop","getTopMyPosts","getTopSubscribed"],
+        post: ["getNew","getHot","getTop"],
+        subnigdit: ["joinSubnigdit"],
     });
 })
 

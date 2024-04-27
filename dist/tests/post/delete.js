@@ -26,9 +26,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const globals_1 = require("@jest/globals");
 const supertest_1 = __importDefault(require("supertest"));
 const mockUser_1 = __importStar(require("../helpers/mockUser"));
-const globals_1 = require("@jest/globals");
 (0, globals_1.it)('should not delete a post with invalid owner', async () => {
     const defaultRole = await strapi.query('plugin::users-permissions.role').findOne({});
     const role = defaultRole ? defaultRole.id : null;

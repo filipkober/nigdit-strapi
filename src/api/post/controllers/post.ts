@@ -187,7 +187,8 @@ module.exports = createCoreController("api::post.post", ({ strapi }: {strapi: St
         filters: filters,
         ...feedQuery,
       });
-      posts.sort((a, b) => b.createdAt - a.createdAt);
+      posts.sort((a, b) => a.createdAt - b.createdAt);
+      posts.reverse();
       const startIndex = start < 0 ? 0 : start;
       const endIndex = Math.min(startIndex + limit, posts.length);
       const data = posts.slice(startIndex, endIndex);
