@@ -1,7 +1,6 @@
+import { it } from '@jest/globals';
 import request from 'supertest';
-import mockUser, { makeUser, randomUser } from '../helpers/mockUser';
-import { cleanupStrapi, setupStrapi } from '../helpers/strapi';
-import { beforeAll, afterAll, it, expect } from '@jest/globals';
+import mockUser, { makeUser } from '../helpers/mockUser';
 
 it('should not delete a post with invalid owner', async () => {
     const defaultRole = await strapi.query('plugin::users-permissions.role').findOne({});
@@ -63,7 +62,7 @@ it('should delete a post with valid owner', async () => {
         id: user.id,
       });
 
-      const subnigdit = await strapi.entityService.create("api::subnigdit.subnigdit", {
+    const subnigdit = await strapi.entityService.create("api::subnigdit.subnigdit", {
         data: {
             name: "TestSubnigdit2",
             name_uid: "test-subnigdit2",
