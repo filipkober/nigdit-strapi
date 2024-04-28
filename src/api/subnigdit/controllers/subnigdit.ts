@@ -1,15 +1,17 @@
 'use strict';
 
+import { Strapi } from '@strapi/strapi';
 /**
  * subnigdit controller
  */
 
 const { createCoreController } = require('@strapi/strapi').factories;
 
-module.exports = createCoreController('api::subnigdit.subnigdit', ({strapi})=>{
+module.exports = createCoreController('api::subnigdit.subnigdit', ({strapi}: {strapi: Strapi})=>{
     return {
         async joinSubnigdit(ctx)
         {
+
             let joined = false
             const user = ctx.state.user
             const idSubnigdita = ctx.params.id
