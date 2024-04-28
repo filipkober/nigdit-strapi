@@ -31,3 +31,13 @@ export const makeUser = async (admin = false) => {
 
   return user;
 }
+
+export const makeUserWithToken = async (admin = false) => {
+  const user = await makeUser(admin);
+
+  const jwt = strapi.plugins['users-permissions'].services.jwt.issue({
+      id: user.id,
+  });
+
+  return { user, jwt };
+}
