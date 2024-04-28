@@ -14,10 +14,11 @@ module.exports = createCoreService('api::comment.comment', ({ strapi } : { strap
             if(commentId) id = commentId;
             else id = comment.id;    
 
-            await strapi.entityService.update("api::comment.comment", id, {
+            const removed = await strapi.entityService.update("api::comment.comment", id, {
                 data:{
                     content: "[removed]",
                 }
             });
+            return removed;
         },
 }));

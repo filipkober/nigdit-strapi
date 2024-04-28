@@ -100,5 +100,52 @@ module.exports = createCoreController("api::reply.reply", ({ strapi }) => {
       let { data, meta } = await super.create(ctx);
       ctx.send({ data, meta });
     },
+    async banAuthor(ctx) {
+      const { user } = ctx.state;
+      const { id } = ctx.params;
+
+      const reply = await strapi.entityService.findOne(
+        "api::reply.reply",
+        id,
+        {populate: {
+          owner: true,
+          comment: {
+            populate: {
+              post: {
+                populate: {
+                  subnigdit: true,
+                },
+              }
+            }
+          }
+        }}
+      );
+      if (!reply) return ctx.send("Reply not found", 404);
+      const author = reply.owner;
+      const subnigdit = reply.comment.post.subnigdit;
+      const clonedBans = JSON.parse(JSON.stringify(author.bans));
+      if (!clonedBans.includes(subnigdit.id)) {
+        clonedBans.push(subnigdit.id);
+      }
+      const updatedUser = await strapi.entityService.update(
+        "plugin::users-permissions.user",
+        author.id,
+        {
+          data: {
+            bans: clonedBans,
+          },
+        }
+      );
+      const removedReply = await strapi.service("api::reply.reply").removeReplyValues(reply);
+      ctx.send(removedReply, 200);
+    },
+
+    async delete(ctx) {
+      const { id } = ctx.params;
+      const reply = await strapi.entityService.findOne("api::reply.reply", id, {populate: "*"});
+      if (!reply) return ctx.send("Reply not found", 404);
+      const removedReply = await strapi.service("api::reply.reply").removeReplyValues(reply);
+      ctx.send(removedReply, 200);
+    },
   };
 });

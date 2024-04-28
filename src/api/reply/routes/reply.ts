@@ -1,18 +1,18 @@
 'use strict';
 
 /**
- * comment router
+ * reply router
  */
 
 const { createCoreRouter } = require('@strapi/strapi').factories;
 
-export default createCoreRouter('api::comment.comment', {
+module.exports = createCoreRouter('api::reply.reply', {
     config: {
         create: {
             policies: ['global::not-banned']
         },
         delete: {
-            policies: ['global::is-comment-creator']
+            policies: ['global::is-reply-creator']
         }
     }
 });

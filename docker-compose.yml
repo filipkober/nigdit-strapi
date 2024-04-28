@@ -9,7 +9,7 @@ services:
     environment:
       DATABASE_CLIENT: ${DATABASE_CLIENT}
       DATABASE_HOST: nigditDB
-      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_PORT: 5432
       DATABASE_NAME: ${DATABASE_NAME}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
@@ -17,6 +17,7 @@ services:
       ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
       APP_KEYS: ${APP_KEYS}
       NODE_ENV: ${NODE_ENV}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
     volumes:
       - ./config:/opt/app/config
       - ./src:/opt/app/src
@@ -25,7 +26,7 @@ services:
       - ./.env:/opt/app/.env
       - ./public/uploads:/opt/app/public/uploads
     ports:
-      - "1338:1338"
+      - "${PORT}:${PORT}"
     networks:
       - nigdit-strapi
     depends_on:
@@ -45,7 +46,7 @@ services:
       #- ./data:/var/lib/postgresql/data/ # if you want to use a bind folder
 
     ports:
-      - "5432:5432"
+      - "${DATABASE_PORT}:5432"
     networks:
       - nigdit-strapi
 
