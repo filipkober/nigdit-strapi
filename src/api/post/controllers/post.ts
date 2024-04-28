@@ -185,11 +185,14 @@ module.exports = createCoreController("api::post.post", ({ strapi }: {strapi: St
         filters: filters,
         ...feedQuery,
       });
-      posts.sort((a, b) => a.createdAt - b.createdAt);
-      posts.reverse();
+      const sortedPosts = posts.sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+        return dateB.getTime() - dateA.getTime();
+      });
       const startIndex = start < 0 ? 0 : start;
-      const endIndex = Math.min(startIndex + limit, posts.length);
-      const data = posts.slice(startIndex, endIndex);
+      const endIndex = Math.min(startIndex + limit, sortedPosts.length);
+      const data = sortedPosts.slice(startIndex, endIndex);
       ctx.send({ data: data }, 200);
     },
     async getTop(ctx)
