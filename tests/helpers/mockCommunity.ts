@@ -85,7 +85,7 @@ export const generateCommunity = async () => {
             rules: [
                 {
                     "id": 1,
-                    "rule": "Do not speak about.."
+                    "rule": "Olo nie jest hetero"
                 },
             ]
         }

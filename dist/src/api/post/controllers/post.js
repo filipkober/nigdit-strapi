@@ -114,16 +114,13 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
         },
         //FEED ALGORITHMS
         async getNew(ctx) {
-            let userId = null;
             let posts = null;
             let filters = {};
             const subnigditFeedId = ctx.query.subnigdit;
             const start = parseInt(ctx.query.start) || 0;
             const limit = parseInt(ctx.query.limit) || 10;
             const mode = parseInt(ctx.query.mode) || 0; //0-normal 1-subscribed 2-myposts
-            if (ctx.state.user) {
-                userId = ctx.state.user.id;
-            }
+            const userId = ctx.state.user ? ctx.state.user.id : null;
             console.log("start: " + start + " limit: " + limit + " mode: " + mode + " userId: " + userId);
             if (subnigditFeedId && mode != 1) // specified subnigdit id or array of ids
              {
@@ -133,7 +130,7 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
              {
                 const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map((group) => group.id);
-                filters = { ...filters, subnigdit: userSubnigditsIds };
+                filters = { ...filters, subnigdit: userId ? userSubnigditsIds : [] };
             }
             else if (mode == 2) //my posts
              {
@@ -152,29 +149,24 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
             ctx.send({ data: data }, 200);
         },
         async getTop(ctx) {
-            let userId = null;
             let posts = null;
             let filters = {};
             const subnigditFeedId = ctx.query.subnigdit;
             const start = parseInt(ctx.query.start) || 0;
             const limit = parseInt(ctx.query.limit) || 10;
             const mode = parseInt(ctx.query.mode) || 0;
-            if (ctx.state.user) {
-                userId = ctx.state.user.id;
-            }
-            console.log("start: " + start + " limit: " + limit + " mode: " + mode + " userId: " + userId);
+            const userId = ctx.state.user ? ctx.state.user.id : null;
             if (subnigditFeedId && mode != 1) {
                 filters = { ...filters, subnigdit: subnigditFeedId };
             }
             if (mode == 1) {
                 const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map((group) => group.id);
-                filters = { ...filters, subnigdit: userSubnigditsIds };
+                filters = { ...filters, subnigdit: userId ? userSubnigditsIds : [] };
             }
             else if (mode == 2) {
                 filters = { ...filters, owner: userId };
             }
-            console.log(filters);
             posts = await strapi.entityService.findMany("api::post.post", {
                 filters: filters,
                 ...feedQuery,
@@ -198,29 +190,24 @@ module.exports = createCoreController("api::post.post", ({ strapi }) => {
             ctx.send({ data: data }, 200);
         },
         async getHot(ctx) {
-            let userId = null;
             let posts = null;
             let filters = {};
             const subnigditFeedId = ctx.query.subnigdit;
             const start = parseInt(ctx.query.start) || 0;
             const limit = parseInt(ctx.query.limit) || 10;
             const mode = parseInt(ctx.query.mode) || 0;
-            if (ctx.state.user) {
-                userId = ctx.state.user.id;
-            }
-            console.log("start: " + start + " limit: " + limit + " mode: " + mode + " userId: " + userId);
+            const userId = ctx.state.user ? ctx.state.user.id : null;
             if (subnigditFeedId && mode != 1) {
                 filters = { ...filters, subnigdit: subnigditFeedId };
             }
             if (mode == 1) {
                 const userSubnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", { filters: { subscribers: userId }, populate: "*" });
                 const userSubnigditsIds = userSubnigdits.map((group) => group.id);
-                filters = { ...filters, subnigdit: userSubnigditsIds };
+                filters = { ...filters, subnigdit: userId ? userSubnigditsIds : [] };
             }
             else if (mode == 2) {
                 filters = { ...filters, owner: userId };
             }
-            console.log(filters);
             posts = await strapi.entityService.findMany("api::post.post", {
                 filters: filters,
                 ...feedQuery,

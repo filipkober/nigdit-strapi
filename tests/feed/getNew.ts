@@ -57,7 +57,7 @@ it("should let user get only two posts from subscribed subnigdit", async () => {
     });
 });
 
-it("should let user get his newest post on specified subnigdit", async () => {
+it("should let user get his newest post from specified subnigdit", async () => {
     await examinCommunity();
     const user = await makeUser(true);
     const jwt = strapi.plugins['users-permissions'].services.jwt.issue({
@@ -102,11 +102,48 @@ it("should let user get his newest post on specified subnigdit", async () => {
     .expect('Content-Type', /json/)
     .expect(200)
     .then(data => {
-        console.log(data.body.data[0])
         expect(data.body.data).toBeDefined();
         expect(data.body.data).toHaveLength(1)
         expect(data.body.data[0].subnigdit.id).toBe(subId)
         expect(data.body.data[0].owner.id).toBe(user.id)
         expect(data.body.data[0].title).toBe("Example4")
+    });
+});
+
+it("should let unauthenticated user get empty array of his posts", async () => {
+    await examinCommunity();
+
+    const res = await request(strapi.server.httpServer)
+    .get('/api/posts/new?start=0&limit=0&mode=1')
+    .set('Content-Type', 'application/json')
+    .expect('Content-Type', /json/)
+    .expect(200)
+    .then(data => {
+        expect(data.body.data).toBeDefined();
+        expect(data.body.data).toHaveLength(0);
+    });
+});
+
+it("should let unauthenticated user get all posts from single subnigdit", async () => {
+    await examinCommunity();
+
+    const subnigdits = await strapi.entityService.findMany("api::subnigdit.subnigdit", {
+        populate: {
+            // @ts-ignore
+            posts: { count: true },
+          },
+    });
+    const subId = subnigdits[0].id;
+    // @ts-ignore
+    const postCount = subnigdits[0].posts.count
+
+    const res = await request(strapi.server.httpServer)
+    .get('/api/posts/new?subnigdit='+subId)
+    .set('Content-Type', 'application/json')
+    .expect('Content-Type', /json/)
+    .expect(200)
+    .then(data => {
+        expect(data.body.data).toBeDefined();
+        expect(data.body.data).toHaveLength(postCount);
     });
 });
