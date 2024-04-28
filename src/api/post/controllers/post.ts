@@ -26,6 +26,8 @@ const feedQuery: Params.Pick<"api::post.post", 'fields' | 'filters' | '_q' | 'pa
         // @ts-ignore
         subscribers: { count: true },
         icon: {
+          // fields: "*",
+          // populate: "*",
           fields: ["url"],
           populate: "url",
         },
