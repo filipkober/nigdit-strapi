@@ -295,7 +295,7 @@ module.exports = createCoreController("api::post.post", ({ strapi }: {strapi: St
       samples.sort((a, b) => b.popularity - a.popularity);
       const sorted = samples.map((sample) => {
         // console.log("id: "+sample.idPostu+" pop: "+sample.popularity+" votes: "+sample.votes+" posted "+sample.dif+" days ago")
-        return posts[sample.pozycja];
+        return {...posts[sample.pozycja], pop: sample.popularity ,dif: sample.differenceInDays };
       });
       const startIndex = start < 0 ? 0 : start;
       const endIndex = Math.min(startIndex + limit, sorted.length);
