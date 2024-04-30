@@ -162,7 +162,7 @@ module.exports = createCoreController("api::post.post", ({ strapi }: {strapi: St
       const limit = parseInt(ctx.query.limit) || 10;
       const mode = parseInt(ctx.query.mode) || 0; //0-normal 1-subscribed 2-myposts
       const userId = ctx.state.user? ctx.state.user.id : null;
-      console.log("start: "+start+" limit: "+limit+" mode: "+mode+" userId: "+userId)
+      // console.log("start: "+start+" limit: "+limit+" mode: "+mode+" userId: "+userId)
       if(subnigditFeedId && mode != 1) // specified subnigdit id or array of ids
       {
           filters = { ...filters, subnigdit: subnigditFeedId}
@@ -180,7 +180,7 @@ module.exports = createCoreController("api::post.post", ({ strapi }: {strapi: St
       {
         filters = { ...filters, owner: userId}
       }
-      console.log(filters)
+      // console.log(filters)
       posts = await strapi.entityService.findMany("api::post.post", {
         filters: filters,
         ...feedQuery,

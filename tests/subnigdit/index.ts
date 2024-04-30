@@ -4,16 +4,19 @@ import { beforeAll } from "@jest/globals";
 
 beforeAll(async () => {
     await setPermissions({
-        reply: ["banAuthor", "delete"],
+        subnigdit: ["checkSubscription", "delete", "joinSubnigdit"],
     });
 })
 
 
-describe("Reply", () => {
-    describe("Ban", () => {
-        require("./ban")
+describe("Subnigdit", () => {
+    describe("Get", () => {
+        require("./get")
     });
     describe("Delete", () => {
         require("./delete")
+    });
+    describe("Join", () => {
+        require("./join")
     });
 })

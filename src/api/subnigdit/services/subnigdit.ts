@@ -56,7 +56,7 @@ module.exports = createCoreService('api::subnigdit.subnigdit', ({ strapi } : { s
 
         const comments = fullSubnigdit.posts.map(post => post.comments.map(comment => comment.id)).flat();
         const replies = fullSubnigdit.posts.map(post => post.comments.map(comment => comment.replies.map(reply => reply.id))).flat(2);
-        console.log(posts, comments, replies)
+        // console.log(posts, comments, replies)
         await strapi.db.query('api::post.post').deleteMany({
             where: {
                 id: {

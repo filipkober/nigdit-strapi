@@ -1,4 +1,4 @@
-import Strapi from "@strapi/strapi";
+import Strapi, { Registry, Schema, Shared } from "@strapi/strapi";
 import fs from "fs";
 import _ from "lodash";
 
@@ -31,7 +31,20 @@ export async function cleanupStrapi() {
     }
   }
 }
-export async function setPermissions(newPermissions, auth = true) {
+// typescript dark magic
+type CreateUnionOfWantedPropertyKeys<Source, Condition> =
+   {[K in keyof Source]: Source[K] extends Condition ? K : never}[keyof Source]
+type FinalType<Source, Condition> = Pick<Source, CreateUnionOfWantedPropertyKeys<Source, Condition>>;
+type CollectionTypes = FinalType<Shared.ContentTypes, Schema.CollectionType>;
+export type SingularNames = {
+  [K in keyof CollectionTypes]: CollectionTypes[K]["info"]["singularName"]
+}[keyof CollectionTypes];
+
+type PermissionsToSet = {
+  [key in SingularNames]?: string[];
+};
+
+export async function setPermissions(newPermissions: PermissionsToSet, auth = true) {
   // Find the ID of the public role
   const publicRole = await strapi
     .query("plugin::users-permissions.role")
