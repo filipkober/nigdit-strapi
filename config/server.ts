@@ -5,13 +5,13 @@ module.exports = ({ env }) => ({
   app: {
     keys: env.array('APP_KEYS'),
   },
-  settings: {
+  settings: { //region remove if not working
     parser: {
       enabled: true,
       multipart: true,
       formidable: {
-        maxFileSize: 10 * 1024 * 1024,
+        maxFileSize: 250 * 1024 * 1024,
       },
     },
-  },  
+  },//endregion
 });
