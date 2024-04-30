@@ -4,7 +4,7 @@ import { beforeAll } from "@jest/globals";
 
 beforeAll(async () => {
     await setPermissions({
-        comment: ["banAuthor"],
+        comment: ["banAuthor", "delete"],
     });
 })
 
@@ -12,5 +12,8 @@ beforeAll(async () => {
 describe("Comment", () => {
     describe("Ban", () => {
         require("./ban")
+    });
+    describe("Delete", () => {
+        require("./delete")
     });
 })
