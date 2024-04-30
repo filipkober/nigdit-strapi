@@ -12,6 +12,8 @@ jobs:
                   node-version: '20'
             - name: Install dependencies
               run: npm install
+            - name: Setup dummy env
+              run: cp .env.example .env
             - name: Build
               run: npm run build
             - name: Test
