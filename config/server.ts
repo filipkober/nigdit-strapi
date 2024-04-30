@@ -5,4 +5,13 @@ module.exports = ({ env }) => ({
   app: {
     keys: env.array('APP_KEYS'),
   },
+  settings: {
+    parser: {
+      enabled: true,
+      multipart: true,
+      formidable: {
+        maxFileSize: 10 * 1024 * 1024,
+      },
+    },
+  },  
 });
