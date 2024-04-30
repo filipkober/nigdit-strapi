@@ -1,4 +1,4 @@
-module.exports = ({ env }) => ({
+export default ({ env }) => ({
     email: {
       config: {
         provider: 'sendgrid',
@@ -11,4 +11,9 @@ module.exports = ({ env }) => ({
         },
       },
     },
+    upload: {
+      config: {
+        sizeLimit: 250 * 1024 * 1024
+      }
+    }
   });
