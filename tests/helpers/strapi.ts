@@ -42,6 +42,8 @@ export type SingularNames = {
 
 type PermissionsToSet = {
   [key in SingularNames]?: string[];
+} & {
+  [key: string]: string[];
 };
 
 export async function setPermissions(newPermissions: PermissionsToSet, auth = true) {
